@@ -35,6 +35,7 @@ fail() {
 mkdir -p "$DIRECTORY_ROOT/scripts" "$DIRECTORY_BIN"
 cp "$REPOSITORY_ROOT/scripts/release-publish.sh" "$DIRECTORY_ROOT/scripts/release-publish.sh"
 cp "$REPOSITORY_ROOT/scripts/release-gate.sh" "$DIRECTORY_ROOT/scripts/release-gate.sh"
+cp "$REPOSITORY_ROOT/scripts/release-stage.sh" "$DIRECTORY_ROOT/scripts/release-stage.sh"
 
 # The build and package steps are replaced: this test is about the publish
 # decisions, not the C++ build.  The fake build reports the current short
@@ -46,7 +47,6 @@ root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 mkdir -p "$root/dataflow.out/build"
 hash=$(git -C "$root" rev-parse --short HEAD)
 version="2026-01-01-test-$hash"
-printf '%s\n' "$version" > "$root/dataflow.out/build/VERSION"
 cat > "$root/dataflow.out/build/vcard-integrate" <<PROGRAM
 #!/bin/sh
 echo "vcard-integrate $version (build 1)"
@@ -58,8 +58,12 @@ cat > "$DIRECTORY_ROOT/scripts/release-package.sh" <<'PACKAGE'
 #!/bin/sh
 set -eu
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ ! -x "$root/dataflow.out/build/bin/vcard-integrate" ]; then
+    echo "release-package: the build tree was not staged" >&2
+    exit 1
+fi
 mkdir -p "$root/dataflow.out/release"
-cp "$root/dataflow.out/build/VERSION" "$root/dataflow.out/release/VERSION"
+printf '%s\n' "${VERSION:-missing}" > "$root/dataflow.out/release/VERSION"
 printf 'fake tarball\n' > "$root/dataflow.out/release/gnome-vcard-integration-linux-x86_64.tar.gz"
 printf 'fake checksum\n' > "$root/dataflow.out/release/SHA256SUMS"
 printf '# fake release notes\n' > "$root/dataflow.out/release/RELEASE-NOTES.md"
@@ -112,6 +116,11 @@ run_publish() {
 HEAD_COMMIT=$(git -C "$DIRECTORY_ROOT" rev-parse HEAD)
 BRANCH=$(git -C "$DIRECTORY_ROOT" symbolic-ref --short HEAD)
 
+# A previous release left a VERSION in the build tree.  The publish path must
+# stage the current build and package that, not this stale file.
+mkdir -p "$DIRECTORY_ROOT/dataflow.out/build"
+printf '1999-01-01-stale\n' > "$DIRECTORY_ROOT/dataflow.out/build/VERSION"
+
 # --- a clean publish ---------------------------------------------------------
 run_publish v0.1.0 > "$DIRECTORY_TEST/publish.log" 2>&1 \
     || { sed 's/^/    /' "$DIRECTORY_TEST/publish.log" >&2; fail 'the clean publish failed'; }
@@ -127,6 +136,12 @@ grep -q 'release-publish: v0.1.0 is published' "$DIRECTORY_TEST/publish.log" \
     || fail 'the publish did not report success'
 [ -s "$DIRECTORY_ROOT/dataflow.out/release/gnome-vcard-integration-linux-x86_64.tar.gz" ] \
     || fail 'the publish produced no tarball'
+EXPECTED_VERSION=$("$DIRECTORY_ROOT/dataflow.out/build/vcard-integrate" --version | awk '{print $2}')
+RELEASE_VERSION=$(cat "$DIRECTORY_ROOT/dataflow.out/release/VERSION")
+[ "$RELEASE_VERSION" = "$EXPECTED_VERSION" ] \
+    || fail "the release VERSION is $RELEASE_VERSION, not the built $EXPECTED_VERSION"
+[ -x "$DIRECTORY_ROOT/dataflow.out/build/bin/vcard-integrate" ] \
+    || fail 'the publish did not stage the current build'
 
 # --- a second publish reuses the tag and re-uploads --------------------------
 run_publish v0.1.0 GH_RELEASE_EXISTS=1 > "$DIRECTORY_TEST/republish.log" 2>&1 \

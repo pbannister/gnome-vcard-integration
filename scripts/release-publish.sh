@@ -50,6 +50,10 @@ fi
 sh "$DIRECTORY_SCRIPT/program-build.sh"
 
 VERSION=$("$DIRECTORY_BUILD/vcard-integrate" --version | awk '{print $2}')
+export VERSION
+# Stage the programs this build just produced.  release-package.sh packs bin/,
+# so a package from a build that was never staged would publish an older tree.
+sh "$DIRECTORY_SCRIPT/release-stage.sh"
 sh "$DIRECTORY_SCRIPT/release-gate.sh" "$VERSION"
 
 sh "$DIRECTORY_SCRIPT/release-package.sh"
