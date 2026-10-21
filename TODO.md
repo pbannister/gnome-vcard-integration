@@ -30,6 +30,19 @@
 
 ## Recently Completed
 
+* [x] add the AppImage-style release installer (2026-10-21; owner instruction):
+    * [x] `scripts/install.sh` fetches and verifies the release, installs into
+          `$PREFIX`, builds from source when no asset matches, and registers the
+          vCard handler with a `VCARD_INTEGRATION_NO_HANDLER=1` opt-out.
+    * [x] the generated release notes and the README `Installing` section
+          describe the one-line install and the reversal command.
+    * [x] `tests/11-release-install.sh` covers the handler step and its opt-out
+          as well as the local, HTTP, tampered, and unverified cases.
+* [x] clear the automatic title selection on a tab switch
+      (2026-10-21; owner report):
+    * [x] the viewer clears the window focus after `switch-page` and after the
+          first presentation, so the `vCard` and `About` titles do not arrive
+          selected.
 * [x] present the viewer as three tabs (2026-10-21; owner instruction):
     * [x] the `vCard` tab keeps the contact page the viewer already showed.
     * [x] the `Discovered` tab runs `vcard-inspect` and shows the exact command

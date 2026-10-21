@@ -405,6 +405,20 @@ GtkWidget *build_about_page() {
     return o_box;
 }
 
+// GtkNotebook focuses the first focusable child of a page when the page is
+// selected.  The first child is a selectable title label, so it arrives with a
+// selection.  Clear the focus after the switch settles; the values remain
+// selectable, but nothing is selected just because a tab was opened.
+gboolean clear_window_focus(gpointer o_data) {
+    gtk_window_set_focus(GTK_WINDOW(o_data), nullptr);
+    return G_SOURCE_REMOVE;
+}
+
+void on_notebook_switch_page(GtkNotebook * /*o_notebook*/, GtkWidget * /*o_page*/,
+                             guint /*u_page_number*/, gpointer o_data) {
+    g_idle_add(clear_window_focus, o_data);
+}
+
 void on_window_destroy(GtkWidget *, gpointer o_data) {
     GMainLoop *o_loop = static_cast<GMainLoop *>(o_data);
     if (nullptr != o_loop) {
@@ -460,10 +474,13 @@ int main(int i_argument_count, char *o_arguments[]) {
     gtk_window_set_title(GTK_WINDOW(o_window), s_title.c_str());
     gtk_window_set_default_size(GTK_WINDOW(o_window), 640, 760);
     gtk_window_set_child(GTK_WINDOW(o_window), o_notebook);
+    g_signal_connect(o_notebook, "switch-page", G_CALLBACK(on_notebook_switch_page), o_window);
 
     GMainLoop *o_loop = g_main_loop_new(nullptr, FALSE);
     g_signal_connect(o_window, "destroy", G_CALLBACK(on_window_destroy), o_loop);
     gtk_window_present(GTK_WINDOW(o_window));
+    // The first page is focused as the window is presented; clear that too.
+    g_idle_add(clear_window_focus, o_window);
     g_main_loop_run(o_loop);
     g_main_loop_unref(o_loop);
 

@@ -128,8 +128,12 @@ curl -fsSL https://raw.githubusercontent.com/$REPOSITORY_SLUG/master/scripts/ins
 
 The script takes the tarball from this release, checks it against
 \`SHA256SUMS\`, and installs into \`\$HOME/.local\`. Set \`PREFIX\` to install
-elsewhere, or \`VERSION\` to a tag to pin one. System integration stays a
-deliberate step the script prints rather than performs.
+elsewhere, or \`VERSION\` to a tag to pin one. Where no prebuilt build exists
+for the machine it builds from the source archive instead.
+
+It then registers the vCard handler, so double-clicking a card opens the
+viewer. Set \`VCARD_INTEGRATION_NO_HANDLER=1\` to install the tools without
+that step; \`vcard-integrate handler uninstall\` reverses it.
 
 ## What is in the tarball
 

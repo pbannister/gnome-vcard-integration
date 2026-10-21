@@ -46,6 +46,16 @@ printf '#!/bin/sh\necho demo\n' > "$DIRECTORY_BUILD/bin/demo"
 chmod 755 "$DIRECTORY_BUILD/bin/demo"
 printf 'demo data\n' > "$DIRECTORY_BUILD/share/demo.txt"
 printf '%s\n' '1.0.0' > "$DIRECTORY_BUILD/VERSION"
+# The installer runs the packaged integrator; this stub records the call so the
+# test can see that the handler step happened (and can check the opt-out).
+cat > "$DIRECTORY_BUILD/bin/vcard-integrate" <<'FAKE'
+#!/bin/sh
+if [ -n "${VCARD_FAKE_LOG:-}" ]; then
+    printf '%s\n' "$*" >> "$VCARD_FAKE_LOG"
+fi
+exit 0
+FAKE
+chmod 755 "$DIRECTORY_BUILD/bin/vcard-integrate"
 
 echo '=== the package is made from the build tree ==='
 DIRECTORY_RELEASE="$DIRECTORY_RELEASE" PROJECT_NAME=demo \
@@ -78,10 +88,25 @@ digest_second=$(sha256sum "$FILE_TARBALL" | cut -d' ' -f1)
 [ "$digest_first" = "$digest_second" ] || fail 'packing the same build twice produced different bytes'
 
 echo '=== a local tarball installs after verification ==='
+: > "$DIRECTORY_TEST/handler.log"
 PREFIX="$DIRECTORY_TEST/prefix-local" TARBALL="$FILE_TARBALL" \
+    VCARD_FAKE_LOG="$DIRECTORY_TEST/handler.log" \
     sh "$REPOSITORY_ROOT/scripts/install.sh" >/dev/null
 [ -x "$DIRECTORY_TEST/prefix-local/bin/demo" ] || fail 'the local install produced no program'
 [ -f "$DIRECTORY_TEST/prefix-local/share/demo.txt" ] || fail 'the local install produced no share file'
+grep -q '^handler install$' "$DIRECTORY_TEST/handler.log" \
+    || fail 'the installer did not run the handler step'
+
+echo '=== the handler step can be declined ==='
+: > "$DIRECTORY_TEST/handler-off.log"
+PREFIX="$DIRECTORY_TEST/prefix-off" TARBALL="$FILE_TARBALL" \
+    VCARD_INTEGRATION_NO_HANDLER=1 VCARD_FAKE_LOG="$DIRECTORY_TEST/handler-off.log" \
+    sh "$REPOSITORY_ROOT/scripts/install.sh" >/dev/null
+[ -x "$DIRECTORY_TEST/prefix-off/bin/vcard-integrate" ] \
+    || fail 'the opt-out install did not install the integrator'
+if [ -s "$DIRECTORY_TEST/handler-off.log" ]; then
+    fail 'the opt-out install ran the handler step anyway'
+fi
 
 echo '=== the installer fetches over loopback HTTP ==='
 PORT=$((8000 + ($$ % 1000)))

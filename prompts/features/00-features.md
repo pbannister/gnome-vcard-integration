@@ -6,10 +6,11 @@
 - `04-contact-renderer.md` — Contact Renderer: draws a contact as a standalone SVG card.
 - `05-vcard-handler.md` — VCARD Handler: registers the vCard MIME types with the GNOME desktop.
 - `06-command-line-tools.md` — Command-Line Tools: `vcard-inspect`, `vcard-render`, and `vcard-integrate`.
+- `07-release-installer.md` — Release Installer: the one-line verified install and the handler step.
 
 - `01-site-build.md` and `02-project-pages.md` are shared with the skeleton and
   are kept for the published page set.
-- Features `03` through `06` implement this project's stated purpose.
+- Features `03` through `06` implement this project's stated purpose; feature `07` makes a release installable.
 - Every top-level requirement carries a stable `<FEATURE-NAME>-R<NNN>`
   identifier, and the tasks in `prompts/tasks/` claim those identifiers in
   `TASK-ACCEPTANCE`.

@@ -26,6 +26,7 @@ card can be read, drawn, and registered from a script.
 - `COMMAND-LINE-TOOLS-R017` — The `Discovered` tab must show the exact `vcard-inspect` command that was run and its combined standard output and standard error, so the graphical view and the command line can be compared.
 - `COMMAND-LINE-TOOLS-R018` — The `About` tab must show the project name, the build-time version, and the GitHub repository link.
 - `COMMAND-LINE-TOOLS-R019` — The `vCard` tab must show the same contact information the viewer showed before the tabbed panel.
+- `COMMAND-LINE-TOOLS-R020` — Selecting a tab must not focus or select that tab's first element; a selectable title must not arrive selected merely because its tab was opened.
 
 ## Behavior
 
@@ -38,6 +39,7 @@ card can be read, drawn, and registered from a script.
 - The viewer opens on the `vCard` tab, and its `Discovered` tab names the inspector and the file and shows the report.
 - The `About` tab shows `GNOME VCARD Integration`, the build-time version, and the repository URL.
 - For a file the inspector refuses, the `vCard` tab shows the error and the `Discovered` tab shows the inspector's exact command and error output.
+- Switching to the `vCard` or `About` tab leaves no text selected.
 
 ## Dependencies
 

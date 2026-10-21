@@ -43,30 +43,45 @@ here under Xvfb, and is skipped where the GTK4 development files are absent.
 
 ## Installing
 
-`make install` installs the tools into `$HOME/.local` (`PREFIX` overrides) and
-then registers the handler, so a downloaded card opens as soon as the install is
-done.
-
-Registration changes what opens a file type, so it is skippable and reversible:
+Easy to grab a release off Github with a one script install:
 
 ```sh
-VCARD_INTEGRATION_NO_HANDLER=1 make install     # install the tools, register nothing
-vcard-integrate handler status                  # show what each type opens, and what this project installed
-vcard-integrate handler uninstall               # restore what opened them before
+curl -fsSL https://raw.githubusercontent.com/pbannister/gnome-vcard-integration/master/scripts/install.sh | sh
 ```
 
-An install that cannot register the handler still installs the tools; it prints
-the reason and exits nonzero, so a scripted install never reports success with
-the association missing.
+The script fetches the release tarball for this machine, checks it against the
+release's `SHA256SUMS`, and installs into `$HOME/.local`. `PREFIX` installs
+elsewhere, `VERSION` pins a release tag, and where no prebuilt build exists for
+the machine it builds from the source archive instead.
+
+It then registers the vCard handler, so double-clicking a `.vcf` opens the
+viewer and vCard files carry the project's icon:
+
+```sh
+vcard-integrate handler install     # what the installer runs
+vcard-integrate handler uninstall   # undo it, restoring the previous handler
+```
+
+That step is the one part of the install that changes how the desktop behaves:
+it rewrites the user's MIME defaults for `text/vcard` and `text/x-vcard`,
+records what they were, and installs a definition of those types when the
+machine has none. Set `VCARD_INTEGRATION_NO_HANDLER=1` to install the tools and
+register nothing; `handler install` and `handler uninstall` remain available at
+any time. A registration that cannot happen is reported, and the installed
+tools stay in place.
+
+For a checkout, `make install` installs the built programs into `$HOME/.local`
+(`PREFIX` overrides) and registers the handler in the same way;
+`VCARD_INTEGRATION_NO_HANDLER=1` skips that step. Unlike the release script, a
+`make install` that cannot register the handler exits nonzero, so a scripted
+install never reports success with the association missing.
 
 The install writes only under `$XDG_DATA_HOME`, `$XDG_CONFIG_HOME`, and the
 temporary directory, and never needs root.
 
-A published release carries the same programs as a tarball with `SHA256SUMS`,
-`VERSION`, and generated release notes.
-`make release-publish` tags the current commit and publishes those files with
-the GitHub CLI; it refuses a dirty tree or a build that does not name the
-commit.
+`scripts/release-package.sh` makes the assets a release publishes, and
+`make release-publish` (with the GitHub CLI authenticated) tags the commit and
+publishes them.
 
 ## Commands
 
