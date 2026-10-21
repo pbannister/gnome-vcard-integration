@@ -55,6 +55,12 @@ the association missing.
 The install writes only under `$XDG_DATA_HOME`, `$XDG_CONFIG_HOME`, and the
 temporary directory, and never needs root.
 
+A published release carries the same programs as a tarball with `SHA256SUMS`,
+`VERSION`, and generated release notes.
+`make release-publish` tags the current commit and publishes those files with
+the GitHub CLI; it refuses a dirty tree or a build that does not name the
+commit.
+
 ## Commands
 
 | Command | Purpose |
@@ -126,6 +132,7 @@ define the type and its definition is not this project's to lose.
 - `make maturity` scores the machine-checkable subset of the prompt-maturity rubric.
 - `make site` builds the published page set, then runs the sanitization gate over `site.out/` (`make check` runs the gate alone).
 - `make release` builds, stages the programs into `dataflow.out/build/bin/`, checks that the version names the current commit, and writes the release assets into `dataflow.out/release/`.
+- `make release-publish` builds from the commit being released, tags it, and creates or updates the GitHub release with the tarball and its checksum; it needs the GitHub CLI.
 - `make clean` removes generated output.
 
 The C++ build uses CMake with the highest warning level and treats warnings as
