@@ -26,6 +26,9 @@ change the tool makes to the desktop can be reversed.
       <code>text/vcard</code> and <code>text/x-vcard</code> open with this
       project, installs the file-type icon, and records what opened them
       before.</li>
+  <li><code>vcard-viewer</code> shows the card, the exact
+      <code>vcard-inspect</code> command and output, and the project's name,
+      version, and repository in three tabs.</li>
   <li><code>vcard-integrate handler uninstall</code> puts the previous handlers
       back and removes what the install wrote.</li>
 </ul>
@@ -35,13 +38,13 @@ change the tool makes to the desktop can be reversed.
 <p>
 Phases 1 through 4 are complete: the reader, the renderer, the MIME handler, the
 command-line tools, and the GTK4 viewer exist, the test suite passes, these
-pages are published, and release <code>v0.1.0</code> is on GitHub.
+pages are published, and the latest release, <code>v0.1.1</code>, is on GitHub.
 </p>
 <p>
 The source is at
 <a href="https://github.com/pbannister/gnome-vcard-integration">github.com/pbannister/gnome-vcard-integration</a>,
-and the release is at
-<a href="https://github.com/pbannister/gnome-vcard-integration/releases/tag/v0.1.0">releases/tag/v0.1.0</a>.
+and the latest release is at
+<a href="https://github.com/pbannister/gnome-vcard-integration/releases/latest">releases/latest</a>.
 </p>
 <p>
 The viewer opens the first contact in a multi-card file, and the oldest legacy

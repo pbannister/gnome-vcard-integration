@@ -30,6 +30,11 @@
 
 ## Recently Completed
 
+* [x] release v0.1.1 (2026-10-21; owner request):
+    * [x] the release carries the tabbed viewer, the soft-break fix, and the
+          AppImage-style installer.
+    * [x] the README and the generated release notes document the one-line
+          install and the handler opt-out.
 * [x] add the AppImage-style release installer (2026-10-21; owner instruction):
     * [x] `scripts/install.sh` fetches and verifies the release, installs into
           `$PREFIX`, builds from source when no asset matches, and registers the
