@@ -30,6 +30,14 @@
 
 ## Recently Completed
 
+* [x] present the viewer as three tabs (2026-10-21; owner instruction):
+    * [x] the `vCard` tab keeps the contact page the viewer already showed.
+    * [x] the `Discovered` tab runs `vcard-inspect` and shows the exact command
+          and its combined output.
+    * [x] the `About` tab shows the project name, the build-time version, and
+          the GitHub repository link.
+    * [x] the non-GTK content moved into `sources/tools/viewer_content.cpp` and
+          is covered by `tests/82-viewer-content.sh`.
 * [x] interpret a bare quoted-printable soft break (2026-10-21; owner report):
     * [x] the reader joins a quoted-printable continuation that starts at
           column 0, so an exported 2.1 card's `ADR` and `LABEL` are complete.

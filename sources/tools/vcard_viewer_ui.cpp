@@ -6,8 +6,8 @@
 // the equivalent commands instead.
 //
 #include "render/contact_render.h"
+#include "tools/viewer_content.h"
 #include "vcard/vcard_reader.h"
-#include "version/version.h"
 
 #include <gtk/gtk.h>
 
@@ -313,6 +313,98 @@ GtkWidget *build_error_page(const std::string &s_message) {
     return o_box;
 }
 
+GtkWidget *make_text_view(const std::string &s_text, bool b_vexpand) {
+    GtkWidget *o_view = gtk_text_view_new();
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(o_view), FALSE);
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(o_view), FALSE);
+    gtk_text_view_set_monospace(GTK_TEXT_VIEW(o_view), TRUE);
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(o_view), GTK_WRAP_WORD_CHAR);
+    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(o_view), 4);
+    gtk_text_view_set_right_margin(GTK_TEXT_VIEW(o_view), 4);
+    gtk_text_view_set_top_margin(GTK_TEXT_VIEW(o_view), 4);
+    gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(o_view), 4);
+    if (b_vexpand) {
+        gtk_widget_set_vexpand(o_view, TRUE);
+    }
+    GtkTextBuffer *o_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(o_view));
+    gtk_text_buffer_set_text(o_buffer, s_text.c_str(), -1);
+    return o_view;
+}
+
+GtkWidget *build_discovered_page(const std::string &s_path) {
+    GtkWidget *o_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_widget_set_vexpand(o_box, TRUE);
+    gtk_widget_set_margin_top(o_box, 20);
+    gtk_widget_set_margin_bottom(o_box, 20);
+    gtk_widget_set_margin_start(o_box, 20);
+    gtk_widget_set_margin_end(o_box, 20);
+
+    if (s_path.empty()) {
+        gtk_box_append(GTK_BOX(o_box),
+                       make_label("No file was given, so there is no vcard-inspect command to run.",
+                                  1.0f, false, true, true));
+        return o_box;
+    }
+
+    std::string s_command;
+    std::string s_output;
+    std::string s_error;
+    int i_status = 0;
+    const bool b_ran =
+        gnome_vcard::viewer::run_inspect(s_path, s_command, s_output, i_status, s_error);
+
+    gtk_box_append(GTK_BOX(o_box), make_heading("Command"));
+    GtkWidget *o_command_scroll = gtk_scrolled_window_new();
+    gtk_widget_set_size_request(o_command_scroll, -1, 58);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(o_command_scroll), GTK_POLICY_AUTOMATIC,
+                                   GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_child(
+        GTK_SCROLLED_WINDOW(o_command_scroll),
+        make_text_view(b_ran ? s_command : "(vcard-inspect was not found)", false));
+    gtk_box_append(GTK_BOX(o_box), o_command_scroll);
+
+    gtk_box_append(GTK_BOX(o_box), make_heading("Output"));
+    if (!b_ran) {
+        gtk_box_append(GTK_BOX(o_box), make_label(s_error, 1.0f, false, true, true));
+        return o_box;
+    }
+
+    GtkWidget *o_output_scroll = gtk_scrolled_window_new();
+    gtk_widget_set_vexpand(o_output_scroll, TRUE);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(o_output_scroll), GTK_POLICY_NEVER,
+                                   GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_child(
+        GTK_SCROLLED_WINDOW(o_output_scroll),
+        make_text_view(s_output.empty() ? "(no output)" : s_output, false));
+    gtk_box_append(GTK_BOX(o_box), o_output_scroll);
+    gtk_box_append(GTK_BOX(o_box),
+                   make_label("Exit status: " + std::to_string(i_status), 0.85f, false, true,
+                              false));
+    return o_box;
+}
+
+GtkWidget *build_about_page() {
+    GtkWidget *o_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
+    gtk_widget_set_margin_top(o_box, 32);
+    gtk_widget_set_margin_bottom(o_box, 32);
+    gtk_widget_set_margin_start(o_box, 32);
+    gtk_widget_set_margin_end(o_box, 32);
+
+    gtk_box_append(GTK_BOX(o_box),
+                   make_label(gnome_vcard::viewer::PROJECT_NAME, 1.8f, true, false, true));
+    gtk_box_append(GTK_BOX(o_box),
+                   make_label(gnome_vcard::viewer::version_line(), 1.0f, false, true, false));
+    gtk_box_append(GTK_BOX(o_box),
+                   make_label(gnome_vcard::viewer::PROJECT_DESCRIPTION, 1.0f, false, false, true));
+
+    gtk_box_append(GTK_BOX(o_box), make_heading("Repository"));
+    GtkWidget *o_link = gtk_link_button_new_with_label(gnome_vcard::viewer::PROJECT_REPOSITORY,
+                                                       gnome_vcard::viewer::PROJECT_REPOSITORY);
+    gtk_widget_set_halign(o_link, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(o_box), o_link);
+    return o_box;
+}
+
 void on_window_destroy(GtkWidget *, gpointer o_data) {
     GMainLoop *o_loop = static_cast<GMainLoop *>(o_data);
     if (nullptr != o_loop) {
@@ -332,32 +424,42 @@ int main(int i_argument_count, char *o_arguments[]) {
     }
 
     std::string s_title = "vCard";
-    GtkWidget *o_content = nullptr;
+    GtkWidget *o_vcard_page = nullptr;
     gnome_vcard::vcard::file_o o_file;
 
     if (s_path.empty()) {
-        o_content = build_error_page("usage: vcard-viewer FILE.vcf");
+        o_vcard_page = build_error_page("usage: vcard-viewer FILE.vcf");
     } else {
         std::string s_error;
         if (!gnome_vcard::vcard::read_vcards(s_path, o_file, s_error)) {
-            o_content = build_error_page(s_error);
+            o_vcard_page = build_error_page(s_error);
         } else if (o_file.o_contacts.empty()) {
-            o_content = build_error_page(s_path + " contains no contact");
+            o_vcard_page = build_error_page(s_path + " contains no contact");
         } else {
             g_contact = &o_file.o_contacts.front();
             s_title = g_contact->formatted_name().empty() ? std::string("vCard")
                                                           : g_contact->formatted_name() + " — vCard";
-            o_content = build_contact_page();
+            o_vcard_page = build_contact_page();
         }
     }
-    if (nullptr == o_content) {
-        o_content = build_error_page("the card could not be displayed");
+    if (nullptr == o_vcard_page) {
+        o_vcard_page = build_error_page("the card could not be displayed");
     }
+
+    GtkWidget *o_notebook = gtk_notebook_new();
+    gtk_notebook_set_tab_pos(GTK_NOTEBOOK(o_notebook), GTK_POS_TOP);
+    gtk_notebook_append_page(GTK_NOTEBOOK(o_notebook), o_vcard_page,
+                             gtk_label_new(gnome_vcard::viewer::TAB_VCARD));
+    gtk_notebook_append_page(GTK_NOTEBOOK(o_notebook), build_discovered_page(s_path),
+                             gtk_label_new(gnome_vcard::viewer::TAB_DISCOVERED));
+    gtk_notebook_append_page(GTK_NOTEBOOK(o_notebook), build_about_page(),
+                             gtk_label_new(gnome_vcard::viewer::TAB_ABOUT));
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(o_notebook), 0);
 
     GtkWidget *o_window = gtk_window_new();
     gtk_window_set_title(GTK_WINDOW(o_window), s_title.c_str());
-    gtk_window_set_default_size(GTK_WINDOW(o_window), 560, 720);
-    gtk_window_set_child(GTK_WINDOW(o_window), o_content);
+    gtk_window_set_default_size(GTK_WINDOW(o_window), 640, 760);
+    gtk_window_set_child(GTK_WINDOW(o_window), o_notebook);
 
     GMainLoop *o_loop = g_main_loop_new(nullptr, FALSE);
     g_signal_connect(o_window, "destroy", G_CALLBACK(on_window_destroy), o_loop);

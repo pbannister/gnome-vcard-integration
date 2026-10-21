@@ -39,6 +39,12 @@ add_library(integration STATIC integration/handler_integrator.cpp)
 target_include_directories(integration PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(integration PUBLIC file_util version_info)
 
+# The viewer's non-GTK content: the Discovered command/output capture and the
+# About identity.  Kept out of the GTK source so it can be tested everywhere.
+add_library(viewer_content STATIC tools/viewer_content.cpp)
+target_include_directories(viewer_content PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(viewer_content PUBLIC file_util version_info)
+
 add_executable(vcard-inspect tools/vcard_inspect.cpp)
 target_link_libraries(vcard-inspect PRIVATE vcard_reader file_util version_info)
 
@@ -59,7 +65,7 @@ endif()
 if(TARGET PkgConfig::GTK4)
     add_executable(vcard-viewer tools/vcard_viewer_ui.cpp)
     target_link_libraries(vcard-viewer PRIVATE PkgConfig::GTK4 contact_render vcard_reader
-        file_util version_info)
+        viewer_content file_util version_info)
 else()
     message(STATUS "GTK4 development files not found: vcard-viewer is not built")
 endif()
@@ -68,6 +74,9 @@ endif()
 # The C++ tests are built here and run by the shell tests in tests/.
 add_executable(vcard-reader-test "${CMAKE_CURRENT_SOURCE_DIR}/../tests/vcard_reader_test.cpp")
 target_link_libraries(vcard-reader-test PRIVATE vcard_reader file_util)
+
+add_executable(viewer-content-test "${CMAKE_CURRENT_SOURCE_DIR}/../tests/viewer_content_test.cpp")
+target_link_libraries(viewer-content-test PRIVATE viewer_content)
 
 add_executable(contact-render-test "${CMAKE_CURRENT_SOURCE_DIR}/../tests/contact_render_test.cpp")
 target_link_libraries(contact-render-test PRIVATE contact_render vcard_reader)

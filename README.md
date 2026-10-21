@@ -83,7 +83,7 @@ commit.
 | `vcard-integrate handler install` | write the MIME definition, the handler entry, the icons, and the record, and set both types to this handler |
 | `vcard-integrate handler uninstall` | restore the recorded previous handlers and remove what this project installed |
 | `vcard-integrate handle FILE.vcf` | the desktop entry point: open the card in the viewer, or print the equivalent commands |
-| `vcard-viewer FILE.vcf` | the GTK4 window (built only where GTK4 is present) |
+| `vcard-viewer FILE.vcf` | the GTK4 tabbed window: the card, the exact `vcard-inspect` command and output, and the project's name, version, and repository |
 | `vcard-inspect --version` | print the build-time version |
 
 `vcard-inspect` exits zero on a file it could read, including one with warnings:
@@ -147,7 +147,8 @@ errors.
 
 The tests follow the skeleton's reserved bands: `14` for the context budget,
 `15` for the vCard reader, `40` for the renderer, `60` for the command-line
-tools, and `90`–`95` for the handler install and uninstall and the viewer.
+tools, `82` for the viewer's Discovered and About content, and `90`–`95` for
+the handler install and uninstall and the viewer.
 The C++ unit tests (`tests/*_test.cpp`, `tests/test_harness.h`) are built by
 `sources/CMakeLists.txt` and run by a shell test; `tests/lib/test_helpers.sh`
 carries `build_program` and the fixture paths.
@@ -163,7 +164,7 @@ touching this machine's own desktop.
 - `sources/render/` contains the SVG contact-card renderer.
 - `sources/integration/` contains the MIME-definition and handler-database integration.
 - `sources/util/` contains file, process, and base64 helpers.
-- `sources/tools/` contains the command-line front ends, the GTK4 viewer, and the icon.
+- `sources/tools/` contains the command-line front ends, the GTK4 viewer, its non-GTK tab content, and the icon.
 - `sources/version/` contains the build-time version reporting.
 - `sources/CMakeLists.txt` defines the targets; the build tree is written to `dataflow.out/build/`.
 

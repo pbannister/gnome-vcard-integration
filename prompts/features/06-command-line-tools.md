@@ -22,6 +22,10 @@ card can be read, drawn, and registered from a script.
 - `COMMAND-LINE-TOOLS-R013` — `vcard-inspect` and `vcard-render` must accept exactly one file.
 - `COMMAND-LINE-TOOLS-R014` — `vcard-render` must print a warning on standard error, and still write the card, when the photograph could not be embedded.
 - `COMMAND-LINE-TOOLS-R015` — `vcard-viewer FILE.vcf` must open a window titled with the contact's name and carrying the `vcard-viewer` WM class, and must open an explanatory window rather than exiting silently when the file is not a readable card.
+- `COMMAND-LINE-TOOLS-R016` — `vcard-viewer` must present a tabbed panel whose tabs are named `vCard`, `Discovered`, and `About`.
+- `COMMAND-LINE-TOOLS-R017` — The `Discovered` tab must show the exact `vcard-inspect` command that was run and its combined standard output and standard error, so the graphical view and the command line can be compared.
+- `COMMAND-LINE-TOOLS-R018` — The `About` tab must show the project name, the build-time version, and the GitHub repository link.
+- `COMMAND-LINE-TOOLS-R019` — The `vCard` tab must show the same contact information the viewer showed before the tabbed panel.
 
 ## Behavior
 
@@ -31,6 +35,9 @@ card can be read, drawn, and registered from a script.
 - `vcard-render --output card.svg FILE` leaves a non-empty SVG carrying the display name.
 - `vcard-inspect` with no file argument exits 2; with a path that does not exist it exits 1.
 - `vcard-viewer` on the fixture leaves a window named for the contact on the display, and `vcard-integrate handle` puts the same window up.
+- The viewer opens on the `vCard` tab, and its `Discovered` tab names the inspector and the file and shows the report.
+- The `About` tab shows `GNOME VCARD Integration`, the build-time version, and the repository URL.
+- For a file the inspector refuses, the `vCard` tab shows the error and the `Discovered` tab shows the inspector's exact command and error output.
 
 ## Dependencies
 
