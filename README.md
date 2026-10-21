@@ -186,6 +186,10 @@ the skeleton's files, and a project customises one by appending a
 Run `sh scripts/skeleton-diff.sh ~/work/gnome-vcard-integration` from the
 skeleton to see any drift; `tests/09-prompt-contract.sh` validates the corpus
 itself.
+The one deliberate difference in a shared rule file is `prompts/01-contract.md`
+section 7, whose canonical-file list names `PHASES.md`; the validator requires
+every tracked root file to be listed there. `scripts/skeleton-diff.sh` reports
+that line as drift, and this project accepts it.
 
 ## For the LLM
 

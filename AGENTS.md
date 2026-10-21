@@ -17,7 +17,7 @@ authoritative file governs (`prompts/01-contract.md` section 2).
 - The task: `prompts/how-to-write-tasks.md` defines the format a task must
   have.
 - The feature requirements the task references: `prompts/features/`.
-- The state: `TODO.md` (status, not authorization) and `PHASES.md`.
+- The state: `TODO.md` (status, not authorization).
 - The record forms: `records/README.md`.
 
 ## Commands

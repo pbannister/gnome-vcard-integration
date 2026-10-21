@@ -46,10 +46,10 @@ reset() {
     git -C "$DIRECTORY_ROOT" add -A
 }
 
-FILE_TASK="$DIRECTORY_ROOT/prompts/tasks/01-site-build-implement.md"
+FILE_TASK="$DIRECTORY_ROOT/prompts/tasks/01-vcard-reader-implement.md"
 FILE_WORKFLOW="$DIRECTORY_ROOT/prompts/02-workflow.md"
 FILE_CONTRACT="$DIRECTORY_ROOT/prompts/01-contract.md"
-FILE_FEATURE="$DIRECTORY_ROOT/prompts/features/01-site-build.md"
+FILE_FEATURE="$DIRECTORY_ROOT/prompts/features/03-vcard-reader.md"
 FILE_FEATURE_02="$DIRECTORY_ROOT/prompts/features/02-project-pages.md"
 FILE_EPISODE="$DIRECTORY_ROOT/prompts/episodes/01-episode-template.md"
 
@@ -119,10 +119,10 @@ expect_reject 4 'TASK-FILES without rows' "TASK-FILES has no '| operation |"
 reset; sed -i 's/^| create |/| frobnicate |/' "$FILE_TASK"
 expect_reject 4 'unknown operation in TASK-FILES' 'unknown operation'
 
-reset; sed -i 's#`scripts/site-build.sh`#`/etc/passwd`#' "$FILE_TASK"
+reset; sed -i 's#`sources/vcard/vcard_reader.cpp`#`/etc/passwd`#' "$FILE_TASK"
 expect_reject 4 'absolute path in TASK-FILES' 'not repository-relative'
 
-reset; sed -i 's#`scripts/site-build.sh`#`../outside.sh`#' "$FILE_TASK"
+reset; sed -i 's#`sources/vcard/vcard_reader.cpp`#`../outside.sh`#' "$FILE_TASK"
 expect_reject 4 'parent escape in TASK-FILES' 'not repository-relative'
 
 reset; sed -i '/^|---|---|$/a | create | `scripts/undeclared.sh` |' "$FILE_TASK"
@@ -131,7 +131,7 @@ expect_reject 4 'TASK-FILES row without an operation line' 'has no operation lin
 reset; sed -i '/^## TASK-DESCRIPTION$/a - Modify: `scripts/undeclared.sh`' "$FILE_TASK"
 expect_reject 4 'operation on an undeclared path' 'operation on undeclared path'
 
-reset; sed -i 's#^- Create: `scripts/site-build.sh`$#- Modify: `scripts/site-build.sh`#' "$FILE_TASK"
+reset; sed -i 's#^- Create: `sources/vcard/vcard_reader.cpp`$#- Modify: `sources/vcard/vcard_reader.cpp`#' "$FILE_TASK"
 expect_reject 4 'verb disagrees between sections' "but 'modify' in TASK-DESCRIPTION"
 
 reset; sed -i '/^## TASK-FILES$/d; /^| create |/d' "$FILE_TASK"
@@ -153,7 +153,7 @@ expect_reject 10 'a dependency that is not a feature file' 'feature dependency i
 reset; sed -i 's#`01-site-build.md`#`99-missing.md`#' "$FILE_FEATURE_02"
 expect_reject 10 'unresolved feature dependency' 'feature dependency does not resolve'
 
-reset; sed -i '/^## Requirements$/a - `SITE-BUILD-R001` A duplicate of the first requirement.' "$FILE_FEATURE"
+reset; sed -i '/^## Requirements$/a - `VCARD-READER-R001` A duplicate of the first requirement.' "$FILE_FEATURE"
 expect_reject 10 'duplicate requirement identifier' 'duplicate requirement identifier'
 
 reset; sed -i '/^## Requirements$/a - A new unnamed requirement.' "$FILE_FEATURE"
@@ -165,19 +165,19 @@ expect_reject 10 'feature without requirement identifiers' 'no requirement ident
 reset; sed -i '/^## TASK-ACCEPTANCE$/,/^OUTPUT:/{/^- `/d}' "$FILE_TASK"
 expect_reject 10 'TASK-ACCEPTANCE without identifiers' 'TASK-ACCEPTANCE has no requirement identifiers'
 
-reset; sed -i '/^## TASK-FEATURES$/d; /^\- `prompts\/features\/01-site-build.md`$/d' "$FILE_TASK"
+reset; sed -i '/^## TASK-FEATURES$/d; /^\- `prompts\/features\/03-vcard-reader.md`$/d' "$FILE_TASK"
 expect_reject 10 'TASK-ACCEPTANCE without TASK-FEATURES' 'has TASK-ACCEPTANCE but no TASK-FEATURES'
 
-reset; sed -i '/^## TASK-FEATURES$/d; /^\- `prompts\/features\/01-site-build.md`$/d; /^## TASK-ACCEPTANCE$/d; /^- `SITE-BUILD-R/d' "$FILE_TASK"
+reset; sed -i '/^## TASK-FEATURES$/d; /^\- `prompts\/features\/03-vcard-reader.md`$/d; /^## TASK-ACCEPTANCE$/d; /^- `VCARD-READER-R/d' "$FILE_TASK"
 expect_reject 10 'feature referenced but no TASK-FEATURES' 'references a feature but has no TASK-FEATURES'
 
-reset; sed -i '/^## TASK-ACCEPTANCE$/d; /^- `SITE-BUILD-R/d' "$FILE_TASK"
+reset; sed -i '/^## TASK-ACCEPTANCE$/d; /^- `VCARD-READER-R/d' "$FILE_TASK"
 expect_reject 10 'TASK-FEATURES without TASK-ACCEPTANCE' 'has TASK-FEATURES but no TASK-ACCEPTANCE'
 
-reset; sed -i 's#`prompts/features/01-site-build.md`#`prompts/03-conventions.md`#' "$FILE_TASK"
+reset; sed -i 's#`prompts/features/03-vcard-reader.md`#`prompts/03-conventions.md`#' "$FILE_TASK"
 expect_reject 10 'TASK-FEATURES lists a non-feature' 'TASK-FEATURES must list feature files'
 
-reset; sed -i 's#`prompts/features/01-site-build.md`#`prompts/features/99-missing.md`#' "$FILE_TASK"
+reset; sed -i 's#`prompts/features/03-vcard-reader.md`#`prompts/features/99-missing.md`#' "$FILE_TASK"
 expect_reject 10 'TASK-FEATURES lists a missing feature' 'TASK-FEATURES names a missing feature'
 
 # --- checks 1, 2, 3, 8, 11: corpus and registry ---
@@ -244,10 +244,10 @@ reset; printf '#!/bin/sh\nread -r answer < /dev/tty\n' > "$DIRECTORY_ROOT/script
 expect_reject 9.2 'script that reads the terminal' 'reads the terminal'
 
 # --- check 12: protected paths ---
-reset; sed -i 's#`scripts/site-build.sh`#`.git/config`#' "$FILE_TASK"
+reset; sed -i 's#`sources/vcard/vcard_reader.cpp`#`.git/config`#' "$FILE_TASK"
 expect_reject 12 'a task authorizing a version-control path' 'authorizes a protected path'
 
-reset; sed -i 's#`scripts/site-build.sh`#`logs/session.log`#' "$FILE_TASK"
+reset; sed -i 's#`sources/vcard/vcard_reader.cpp`#`logs/session.log`#' "$FILE_TASK"
 expect_reject 12 'a task authorizing generated output' 'authorizes a protected path'
 
 # --- check 13: capability registry ---
@@ -262,7 +262,7 @@ expect_reject 14 'a third-party checkout inside the working tree' 'top-level dir
 # --- acceptance cases: the validator must not reject a valid variation ---
 # Feature 02 depends on feature 01, so a task that lists 02 may claim a
 # requirement owned by 01: dependencies apply transitively.
-reset; sed -i 's#`prompts/features/01-site-build.md`#`prompts/features/02-project-pages.md`#' "$FILE_TASK"
+reset; sed -i 's#`prompts/features/03-vcard-reader.md`#`prompts/features/04-contact-renderer.md`#' "$FILE_TASK"
 expect_accept 'acceptance reachable through a feature dependency'
 
 reset; cat > "$DIRECTORY_ROOT/prompts/features/90-eval-sample.md" <<'EOF'
@@ -295,7 +295,7 @@ expect_accept 'a project appendix on a shared rule file'
 reset; printf '#!/bin/sh\nwhile IFS= read -r line; do\n    :\ndone < "$1"\n' > "$DIRECTORY_ROOT/scripts/loop-input.sh"
 expect_accept 'a script that reads a file, not standard input'
 
-reset; sed -i 's#`scripts/site-build.sh`#`logs/.gitkeep`#' "$FILE_TASK"
+reset; sed -i 's#`sources/vcard/vcard_reader.cpp`#`logs/.gitkeep`#' "$FILE_TASK"
 expect_accept 'a tracked placeholder inside a generated directory'
 
 echo "10-prompt-validator: ok ($count_case rejected, $count_accept accepted)"

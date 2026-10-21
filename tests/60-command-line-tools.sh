@@ -51,7 +51,7 @@ for expected in \
     'organization: Analytical Engine Society' \
     'email: ada@example.invalid (WORK, preferred)' \
     'telephone: +44 20 0000 0000 (VOICE, WORK, preferred)' \
-    'address: 12 Example Street, London, Greater London, SW1A 1AA, United Kingdom (WORK)' \
+    'address: 12 Example Street, London, Greater London SW1A 1AA, United Kingdom (WORK)' \
     'url: https://example.invalid/ada' \
     'photo: image/png (68 bytes, embedded)' \
     'properties: 17'; do

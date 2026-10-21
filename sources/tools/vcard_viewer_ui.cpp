@@ -5,6 +5,7 @@
 // command-line tools work without it, and `vcard-integrate handle` then prints
 // the equivalent commands instead.
 //
+#include "render/contact_render.h"
 #include "vcard/vcard_reader.h"
 #include "version/version.h"
 
@@ -111,6 +112,9 @@ GtkWidget *make_row(const std::string &s_label, const std::string &s_value,
 std::string label_for(const gnome_vcard::vcard::property_o &o_property) {
     std::string s_label;
     for (const std::string &s_type : o_property.o_types) {
+        if (starts_with_ci(s_type, "PREF") && 4 == s_type.size()) {
+            continue;
+        }
         if (!s_label.empty()) {
             s_label += ", ";
         }
@@ -159,7 +163,7 @@ GtkWidget *build_contact_page() {
     gtk_box_append(GTK_BOX(o_header), o_names);
 
     const gnome_vcard::vcard::photo_o o_photo = o_contact.photo();
-    if (o_photo.b_embedded && 0 == o_photo.s_media_type.compare(0, 6, "image/")) {
+    if (o_photo.b_embedded && gnome_vcard::render::is_embeddable_image(o_photo.s_media_type)) {
         GBytes *o_bytes = g_bytes_new(o_photo.s_bytes.data(), o_photo.s_bytes.size());
         GError *o_error = nullptr;
         GdkTexture *o_texture = gdk_texture_new_from_bytes(o_bytes, &o_error);
@@ -216,6 +220,9 @@ GtkWidget *build_contact_page() {
         }
         std::string s_label;
         for (const std::string &s_type : o_address.o_types) {
+            if (starts_with_ci(s_type, "PREF") && 4 == s_type.size()) {
+                continue;
+            }
             if (!s_label.empty()) {
                 s_label += ", ";
             }

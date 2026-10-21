@@ -180,11 +180,16 @@ void print_report(const gnome_vcard::vcard::file_o &o_file, bool b_properties) {
             std::cout << "  address: " << flatten(o_address.formatted());
             if (!o_address.o_types.empty()) {
                 std::cout << " (";
-                for (std::size_t u_type = 0; u_type < o_address.o_types.size(); ++u_type) {
-                    if (0 < u_type) {
+                bool b_wrote_type = false;
+                for (const std::string &s_type : o_address.o_types) {
+                    if ("PREF" == s_type) {
+                        continue;
+                    }
+                    if (b_wrote_type) {
                         std::cout << ", ";
                     }
-                    std::cout << o_address.o_types[u_type];
+                    std::cout << s_type;
+                    b_wrote_type = true;
                 }
                 if (o_address.b_preferred) {
                     std::cout << ", preferred";

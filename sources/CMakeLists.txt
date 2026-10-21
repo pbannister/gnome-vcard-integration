@@ -58,8 +58,8 @@ if(PkgConfig_FOUND)
 endif()
 if(TARGET PkgConfig::GTK4)
     add_executable(vcard-viewer tools/vcard_viewer_ui.cpp)
-    target_link_libraries(vcard-viewer PRIVATE PkgConfig::GTK4 vcard_reader file_util
-        version_info)
+    target_link_libraries(vcard-viewer PRIVATE PkgConfig::GTK4 contact_render vcard_reader
+        file_util version_info)
 else()
     message(STATUS "GTK4 development files not found: vcard-viewer is not built")
 endif()

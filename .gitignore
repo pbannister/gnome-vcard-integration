@@ -2,7 +2,6 @@
 .aider.chat.history.md
 .aider.input.history
 .aider.tags.cache.*
-.vscode/
 dataflow.out/*
 logs/*
 site.out/*

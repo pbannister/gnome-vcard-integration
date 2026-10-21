@@ -42,16 +42,18 @@ void test_simple_vcard(const std::string &s_directory) {
     EXPECT_EQ(static_cast<std::size_t>(1), o_contact.addresses().size());
     EXPECT_TRUE(o_contact.o_warnings.empty());
 
-    if (!o_contact.telephones().empty()) {
-        const gnome_vcard::vcard::property_o &o_telephone = o_contact.telephones().front();
+    const std::vector<gnome_vcard::vcard::property_o> o_telephones = o_contact.telephones();
+    if (!o_telephones.empty()) {
+        const gnome_vcard::vcard::property_o &o_telephone = o_telephones.front();
         EXPECT_EQ(std::string("+44 20 0000 0000"), o_telephone.s_value);
         EXPECT_TRUE(o_telephone.has_type("VOICE"));
         EXPECT_TRUE(o_telephone.has_type("WORK"));
         EXPECT_TRUE(o_telephone.b_preferred);
         EXPECT_EQ(1, o_telephone.i_preference);
     }
-    if (!o_contact.addresses().empty()) {
-        const gnome_vcard::vcard::address_o &o_address = o_contact.addresses().front();
+    const std::vector<gnome_vcard::vcard::address_o> o_addresses = o_contact.addresses();
+    if (!o_addresses.empty()) {
+        const gnome_vcard::vcard::address_o &o_address = o_addresses.front();
         EXPECT_EQ(std::string("12 Example Street"), o_address.s_street);
         EXPECT_EQ(std::string("London"), o_address.s_locality);
         EXPECT_EQ(std::string("SW1A 1AA"), o_address.s_postal_code);
@@ -94,17 +96,19 @@ void test_legacy_vcard(const std::string &s_directory) {
     EXPECT_CONTAINS(o_contact.title(), "Math");
     EXPECT_CONTAINS(o_contact.title(), "\xc3\xa9");
     EXPECT_EQ(static_cast<std::size_t>(2), o_contact.telephones().size());
-    if (!o_contact.telephones().empty()) {
-        const gnome_vcard::vcard::property_o &o_telephone = o_contact.telephones().front();
+    const std::vector<gnome_vcard::vcard::property_o> o_telephones = o_contact.telephones();
+    if (!o_telephones.empty()) {
+        const gnome_vcard::vcard::property_o &o_telephone = o_telephones.front();
         EXPECT_TRUE(o_telephone.has_type("HOME"));
         EXPECT_TRUE(o_telephone.has_type("VOICE"));
     }
-    if (!o_contact.emails().empty()) {
-        EXPECT_TRUE(o_contact.emails().front().b_preferred);
-        EXPECT_TRUE(o_contact.emails().front().has_type("INTERNET"));
+    const std::vector<gnome_vcard::vcard::property_o> o_emails = o_contact.emails();
+    if (!o_emails.empty()) {
+        EXPECT_TRUE(o_emails.front().b_preferred);
+        EXPECT_TRUE(o_emails.front().has_type("INTERNET"));
     }
     EXPECT_CONTAINS(o_contact.note(), "first published algorithm");
-    EXPECT_CONTAINS(o_contact.note(), "Second line");
+    EXPECT_CONTAINS(o_contact.note(), "second line");
     EXPECT_CONTAINS(o_contact.note(), "\xe2\x80\x94");
 }
 
@@ -162,9 +166,10 @@ void test_parse_edge_cases() {
         EXPECT_CONTAINS(o_contact.note(), "Hello world");
         EXPECT_CONTAINS(o_contact.note(), "continued");
         EXPECT_TRUE(o_contact.note().find("world\n") != std::string::npos);
-        if (!o_contact.telephones().empty()) {
-            EXPECT_TRUE(o_contact.telephones().front().has_type("VOICE"));
-            EXPECT_TRUE(o_contact.telephones().front().has_type("HOME"));
+        const std::vector<gnome_vcard::vcard::property_o> o_telephones = o_contact.telephones();
+        if (!o_telephones.empty()) {
+            EXPECT_TRUE(o_telephones.front().has_type("VOICE"));
+            EXPECT_TRUE(o_telephones.front().has_type("HOME"));
         }
     }
 

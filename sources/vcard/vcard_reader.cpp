@@ -836,6 +836,9 @@ bool property_o::has_type(const std::string &s_type) const {
 std::string property_o::types_text() const {
     std::string s_result;
     for (const std::string &s_one : o_types) {
+        if (equals_ci(s_one, "PREF")) {
+            continue;
+        }
         if (!s_result.empty()) {
             s_result += ", ";
         }

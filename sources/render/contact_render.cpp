@@ -60,6 +60,11 @@ bool starts_with_ci(const std::string &s_text, const std::string &s_prefix) {
     return true;
 }
 
+bool same_ci(const std::string &s_left, const std::string &s_right) {
+    return s_left.size() == s_right.size() && starts_with_ci(s_left, s_right);
+}
+
+
 // A value becomes a link only when it names a scheme this project trusts.  A
 // card is untrusted input, so javascript: and data: are never link targets.
 bool is_safe_href(const std::string &s_value) {
@@ -80,6 +85,9 @@ std::string tel_target(const std::string &s_number) {
 std::string label_for(const vcard::property_o &o_property) {
     std::string s_label;
     for (const std::string &s_type : o_property.o_types) {
+        if (same_ci(s_type, "PREF")) {
+            continue;
+        }
         if (!s_label.empty()) {
             s_label += ", ";
         }
@@ -217,6 +225,9 @@ std::vector<section_o> build_sections(const vcard::contact_o &o_contact) {
         }
         entry_o o_entry;
         for (const std::string &s_type : o_address.o_types) {
+            if (same_ci(s_type, "PREF")) {
+                continue;
+            }
             if (!o_entry.s_label.empty()) {
                 o_entry.s_label += ", ";
             }
@@ -341,7 +352,7 @@ void render_photo(std::ostringstream &s_svg, const vcard::photo_o &o_photo, bool
         return;
     }
 
-    if (o_photo.b_embedded && 0 == o_photo.s_media_type.compare(0, 6, "image/")) {
+    if (o_photo.b_embedded && is_embeddable_image(o_photo.s_media_type)) {
         const std::string s_data_uri =
             "data:" + o_photo.s_media_type + ";base64," + util::base64_encode(o_photo.s_bytes);
         s_svg << "  <defs>\n"
@@ -358,17 +369,35 @@ void render_photo(std::ostringstream &s_svg, const vcard::photo_o &o_photo, bool
         return;
     }
 
-    s_svg << "  <rect x=\"" << PHOTO_X << "\" y=\"" << PHOTO_Y << "\" width=\"" << PHOTO_SIZE
-          << "\" height=\"" << PHOTO_SIZE
+    std::string s_reason = "not embedded";
+    if (!o_photo.s_note.empty()) {
+        if (std::string::npos != o_photo.s_note.find("URI")) {
+            s_reason = "remote URI not fetched";
+        } else if (std::string::npos != o_photo.s_note.find("decoded")) {
+            s_reason = "image not readable";
+        } else if (std::string::npos != o_photo.s_note.find("no value")) {
+            s_reason = "no image data";
+        }
+    }
+    s_svg << "  <g>\n"
+          << "    <title>" << escape_xml("photo " + s_reason) << "</title>\n"
+          << "    <rect x=\"" << PHOTO_X << "\" y=\"" << PHOTO_Y << "\" width=\""
+          << PHOTO_SIZE << "\" height=\"" << PHOTO_SIZE
           << "\" rx=\"10\" fill=\"#3f6f5f\" stroke=\"#ffffff\" stroke-opacity=\"0.4\"/>\n"
-          << "  <text x=\"" << (PHOTO_X + PHOTO_SIZE / 2) << "\" y=\""
-          << (PHOTO_Y + PHOTO_SIZE / 2 - 4)
+          << "    <text x=\"" << (PHOTO_X + PHOTO_SIZE / 2) << "\" y=\""
+          << (PHOTO_Y + PHOTO_SIZE / 2 - 14)
           << "\" text-anchor=\"middle\" font-family=\"DejaVu Sans, sans-serif\" "
              "font-size=\"12\" fill=\"#ffffff\">photo</text>\n"
-          << "  <text x=\"" << (PHOTO_X + PHOTO_SIZE / 2) << "\" y=\""
-          << (PHOTO_Y + PHOTO_SIZE / 2 + 16)
+          << "    <text x=\"" << (PHOTO_X + PHOTO_SIZE / 2) << "\" y=\""
+          << (PHOTO_Y + PHOTO_SIZE / 2 + 4)
           << "\" text-anchor=\"middle\" font-family=\"DejaVu Sans, sans-serif\" "
-             "font-size=\"12\" fill=\"#ffffff\">not embedded</text>\n";
+             "font-size=\"12\" fill=\"#ffffff\">not embedded</text>\n"
+          << "    <text x=\"" << (PHOTO_X + PHOTO_SIZE / 2) << "\" y=\""
+          << (PHOTO_Y + PHOTO_SIZE / 2 + 22)
+          << "\" text-anchor=\"middle\" font-family=\"DejaVu Sans, sans-serif\" "
+             "font-size=\"9\" fill=\"#d7e8e0\">"
+          << escape_xml(s_reason) << "</text>\n"
+          << "  </g>\n";
 }
 
 std::string render_text_value(const entry_o &o_entry, int i_y) {
@@ -394,6 +423,25 @@ std::string render_text_value(const entry_o &o_entry, int i_y) {
 }
 
 }  // namespace
+
+bool is_embeddable_image(const std::string &s_media_type) {
+    std::string s_type = s_media_type;
+    const std::size_t u_semicolon = s_type.find(';');
+    if (std::string::npos != u_semicolon) {
+        s_type = s_type.substr(0, u_semicolon);
+    }
+    std::size_t u_begin = 0;
+    std::size_t u_end = s_type.size();
+    while (u_begin < u_end && std::isspace(static_cast<unsigned char>(s_type[u_begin]))) {
+        ++u_begin;
+    }
+    while (u_end > u_begin && std::isspace(static_cast<unsigned char>(s_type[u_end - 1]))) {
+        --u_end;
+    }
+    s_type = s_type.substr(u_begin, u_end - u_begin);
+    return same_ci(s_type, "image/png") || same_ci(s_type, "image/jpeg") ||
+           same_ci(s_type, "image/gif") || same_ci(s_type, "image/webp");
+}
 
 std::string render_contact_svg(const vcard::contact_o &o_contact, const options_o &o_options) {
     const std::vector<section_o> o_sections = build_sections(o_contact);
