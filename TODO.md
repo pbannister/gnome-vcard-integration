@@ -42,6 +42,9 @@
           standard page set through the homelab publisher.
     * [x] the pages are live at
           <https://labs.bannister.us/projects/gnome-vcard-integration/>.
+    * [x] the first `v0.1.0` package named an older staged tree; the publish
+          path now stages the current build and exports its version, and the
+          corrected tarball, `VERSION`, and release notes were re-uploaded.
 * [x] project start (2026-10-21; owner instruction):
     * [x] derived the project from `00-project-skeleton/` and kept the shared
           rule corpus, so `scripts/skeleton-diff.sh` reports no rule drift.
