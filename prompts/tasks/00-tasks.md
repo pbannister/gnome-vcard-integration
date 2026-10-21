@@ -9,6 +9,7 @@
 - `07-tabbed-viewer.md` — Present the viewer as a three-tab panel.
 - `08-release-installer.md` — Add the release installer and the Installing section.
 - `09-viewer-tab-focus.md` — Clear the tab-selection focus in the viewer.
+- `10-release-tag-form.md` — Generate release tags as `v<date>-<branch>`.
 
 - `01` establishes the C++ build, the utility layer, and the parser.
 - `02` draws a card on top of the parser.
@@ -19,3 +20,4 @@
 - `07` adds the viewer's `vCard`, `Discovered`, and `About` tabs.
 - `08` makes a release installable with the AppImage-style script.
 - `09` clears the automatic title selection when a viewer tab opens.
+- `10` names an invented release tag by date and branch.

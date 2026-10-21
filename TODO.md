@@ -30,6 +30,14 @@
 
 ## Recently Completed
 
+* [x] generate release tags as `v<date>-<branch>` (2026-10-21; owner instruction):
+    * [x] `release-publish.sh` generates `v<date>-<branch>` when the commit has
+          no tag, still reuses an existing tag, and still accepts an explicit
+          `TAG`.
+    * [x] a detached checkout is refused rather than guessed; existing
+          `v0.1.0` and `v0.1.1` tags are unchanged.
+    * [x] `tests/81-release-publish.sh` publishes with no `TAG` and checks the
+          generated form.
 * [x] release v0.1.1 (2026-10-21; owner request):
     * [x] the release carries the tabbed viewer, the soft-break fix, and the
           AppImage-style installer.

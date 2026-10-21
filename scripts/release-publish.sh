@@ -14,7 +14,8 @@
 # already exists (prompts/capabilities/04-release-and-publishing.md).
 #
 # Environment:
-#   TAG          the release tag (default: the tag on this commit, else v<version>)
+#   TAG          the release tag (default: the tag on this commit, else
+#                v<date>-<branch>)
 #   TITLE        the release title (default "GNOME VCARD Integration <version>")
 #   PUSH_REMOTE  where to push the commit and the tag (default origin)
 set -eu
@@ -59,12 +60,20 @@ sh "$DIRECTORY_SCRIPT/release-gate.sh" "$VERSION"
 sh "$DIRECTORY_SCRIPT/release-package.sh"
 
 VERSION=$(cat "$DIRECTORY_RELEASE/VERSION")
-# Without TAG, publish the tag this commit already carries, and only invent one
-# when the commit has none: a release should reuse the tag a person chose.
+# Without TAG, publish the tag this commit already carries, and only generate
+# one when the commit has none: a release should reuse the tag a person chose.
+# A generated tag names the release by date and branch: v<date>-<branch>.
 if [ -z "${TAG:-}" ]; then
     TAG=$(git -C "$REPOSITORY_ROOT" tag --points-at HEAD | head -1)
 fi
-TAG=${TAG:-v$VERSION}
+if [ -z "${TAG:-}" ]; then
+    branch_for_tag=$(git -C "$REPOSITORY_ROOT" symbolic-ref --short HEAD 2>/dev/null || true)
+    if [ -z "$branch_for_tag" ]; then
+        echo "release-publish: the checkout is not on a branch; set TAG explicitly" >&2
+        exit 1
+    fi
+    TAG="v$(date +%F)-$branch_for_tag"
+fi
 TITLE=${TITLE:-"GNOME VCARD Integration $VERSION"}
 FILE_TARBALL=$(find "$DIRECTORY_RELEASE" -maxdepth 1 -name '*.tar.gz' | head -1)
 if [ -z "$FILE_TARBALL" ]; then
