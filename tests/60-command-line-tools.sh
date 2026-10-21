@@ -22,6 +22,7 @@ trap 'rm -rf "$DIRECTORY_TEMPORARY"' EXIT HUP INT TERM
 FILE_SIMPLE="$DIRECTORY_FIXTURES/simple.vcf"
 FILE_MULTIPLE="$DIRECTORY_FIXTURES/multiple.vcf"
 FILE_INCOMPLETE="$DIRECTORY_FIXTURES/incomplete.vcf"
+FILE_SOFT_BREAK="$DIRECTORY_FIXTURES/soft-break.vcf"
 FILE_INVALID="$DIRECTORY_FIXTURES/invalid.vcf"
 
 PROGRAM_INSPECT="$DIRECTORY_BUILD/vcard-inspect"
@@ -100,6 +101,53 @@ assert card["photo"]["sizeBytes"] == 68
 assert any(prop["name"] == "PHOTO" for prop in card["properties"])
 assert card["warnings"] == []
 PYTHON_CHECK
+
+# --- a bare quoted-printable soft break joins the next line -----------------
+FILE_SOFT="$DIRECTORY_TEMPORARY/soft-break.txt"
+"$PROGRAM_INSPECT" "$FILE_SOFT_BREAK" > "$FILE_SOFT"
+grep -qF 'address: 123 Example Street \n Exampleville, CO 00000 (WORK, preferred)' "$FILE_SOFT" \
+    || fail 'the soft-break address is not interpreted'
+grep -qF 'address label: 123 Example Street \n Exampleville, CO  00000' "$FILE_SOFT" \
+    || fail 'the soft-break LABEL is not interpreted'
+if grep -q 'malformed line' "$FILE_SOFT"; then
+    fail 'the soft-break continuation was skipped as a malformed line'
+fi
+
+FILE_SOFT_PROPERTIES="$DIRECTORY_TEMPORARY/soft-break-properties.txt"
+"$PROGRAM_INSPECT" --properties "$FILE_SOFT_BREAK" > "$FILE_SOFT_PROPERTIES"
+for expected in \
+    'property ADR;TYPE=WORK;TYPE=PREF;ENCODING=QUOTED-PRINTABLE' \
+    'property LABEL;TYPE=WORK;TYPE=PREF;ENCODING=QUOTED-PRINTABLE' \
+    'value: 123 Example Street \n Exampleville, CO  00000'; do
+    grep -qF "$expected" "$FILE_SOFT_PROPERTIES" \
+        || fail "the soft-break property list is missing: $expected"
+done
+
+FILE_SOFT_JSON="$DIRECTORY_TEMPORARY/soft-break.json"
+"$PROGRAM_INSPECT" --json "$FILE_SOFT_BREAK" > "$FILE_SOFT_JSON"
+python3 - "$FILE_SOFT_JSON" <<'PYTHON_CHECK' || fail 'the soft-break JSON is wrong'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    report = json.load(handle)
+
+card = report["cards"][0]
+address = card["addresses"][0]
+assert card["warnings"] == [], card["warnings"]
+assert "\n" in address["components"]["street"], address["components"]["street"]
+assert address["components"]["locality"] == "CO"
+assert address["components"]["postalCode"] == "00000"
+assert address["components"]["region"] == ""
+assert "Exampleville" in address["label"]
+assert address["preferred"] is True
+PYTHON_CHECK
+
+"$PROGRAM_RENDER" "$FILE_SOFT_BREAK" > "$DIRECTORY_TEMPORARY/soft-break.svg"
+for expected in '123 Example Street' 'Exampleville' 'CO 00000'; do
+    grep -qF "$expected" "$DIRECTORY_TEMPORARY/soft-break.svg" \
+        || fail "the soft-break card is missing: $expected"
+done
 
 # --- an incomplete card is a finding, not a failure --------------------------
 "$PROGRAM_INSPECT" "$FILE_INCOMPLETE" > "$DIRECTORY_TEMPORARY/incomplete.txt" \

@@ -201,6 +201,7 @@ void print_report(const gnome_vcard::vcard::file_o &o_file, bool b_properties) {
             }
             std::cout << '\n';
         }
+        print_line("address label", o_contact.first_text("LABEL"));
         for (const gnome_vcard::vcard::property_o &o_property : o_contact.urls()) {
             std::cout << "  url: " << o_property.s_value << '\n';
         }

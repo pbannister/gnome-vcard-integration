@@ -69,6 +69,18 @@ continuation.
 This is the difference between `NOTE:Hello=20world` and a long note that merely
 wrapped.
 
+Some producers, Outlook among them, write the soft break with no leading
+whitespace on the continuation line:
+
+```
+ADR;WORK;ENCODING=QUOTED-PRINTABLE:;;2023 Example Street=0D=0A=
+Exampleville;CO;00000
+```
+
+That is not a valid vCard fold, but it is common in exported address books.
+The reader joins it when a quoted-printable line ends with `=`, because the
+alternative is to drop the rest of the value and report a malformed line.
+
 ## Parameters this project reads
 
 | Parameter | Meaning | Handling |
@@ -102,6 +114,15 @@ A backslash before any other character is not defined by the specification; this
 project keeps both characters as written rather than inventing a meaning.
 
 ## Structured values
+
+A `LABEL` property often carries the formatted address that the producer
+intended; this project reports it alongside the `ADR` rather than replacing
+the structured address with it.
+
+Some 2.1 producers drop the trailing empty `ADR` components and leave the
+postal code in the region position, as in `;;Street;City;00000`.
+A five-component address whose fifth part looks like a postal code is read
+that way, so the display does not gain a comma between the city and the code.
 
 `N` has five components, in this order:
 

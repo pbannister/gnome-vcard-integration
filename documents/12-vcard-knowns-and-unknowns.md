@@ -66,6 +66,8 @@ silent.
 | Two `FN` values | keep both, show the first, warn | the file is wrong; the reader still has a useful value |
 | Text outside a card | warn and ignore it | a concatenated export may carry a stray line |
 | A NUL byte in the file | refuse the file as not a vCard | a text format with a NUL is binary damage, not a card |
+| A quoted-printable soft break with no leading whitespace | join the next line | some producers write it; the alternative is to lose the rest of the value |
+| A five-component `ADR` whose fifth part looks like a postal code | read the fifth part as the postal code | some 2.1 producers omit the trailing empty components |
 
 ## Security notes
 

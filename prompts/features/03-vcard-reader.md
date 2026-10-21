@@ -33,6 +33,8 @@ encoded values.
 - `VCARD-READER-R023` — The reader must expose the contact facts a renderer needs as accessors: display name, structured name, organisation, title, telephones, emails, addresses, URLs, note, and photo.
 - `VCARD-READER-R024` — The reader must recognise the vCard 4.0 `PREF` parameter as well as the `TYPE=PREF` form, and must treat a `PREF` value as an ordering preference.
 - `VCARD-READER-R025` — The reader must record a `VALUE=` parameter and a `MEDIATYPE=` parameter on the property that carries it.
+- `VCARD-READER-R026` — The reader must join a quoted-printable value's next physical line when the previous line ends with `=`, even when the continuation does not begin with whitespace, because some producers write that form.
+- `VCARD-READER-R027` — The reader must read a five-component `ADR` whose fifth component looks like a postal code as a postal code, because some 2.1 producers omit the trailing empty components.
 
 ## Behavior
 
@@ -45,6 +47,8 @@ encoded values.
 - Given a card with no `FN`, the card is returned with a warning that names the missing property.
 - Given a file with two cards, both are returned in order.
 - Given a file that is not a vCard, the reader fails with a message and no partial card.
+- Given `NOTE;ENCODING=QUOTED-PRINTABLE:first=0D=0A=` followed by a line at column 0, the note contains the continuation and no malformed-line warning is raised.
+- Given `ADR:;;Street;City;00000`, the address has locality `City` and postal code `00000`, and no region.
 
 ## Dependencies
 

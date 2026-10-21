@@ -112,6 +112,48 @@ void test_legacy_vcard(const std::string &s_directory) {
     EXPECT_CONTAINS(o_contact.note(), "\xe2\x80\x94");
 }
 
+void test_soft_break_card(const std::string &s_directory) {
+    gnome_vcard::vcard::file_o o_file;
+    std::string s_error;
+    EXPECT_TRUE(gnome_vcard::vcard::read_vcards(
+        fixture_path(s_directory, "soft-break.vcf"), o_file, s_error));
+    EXPECT_EQ(static_cast<std::size_t>(1), o_file.o_contacts.size());
+    if (o_file.o_contacts.empty()) {
+        return;
+    }
+
+    const gnome_vcard::vcard::contact_o &o_contact = o_file.o_contacts.front();
+    EXPECT_EQ(std::string("2.1"), o_contact.s_version);
+    EXPECT_EQ(std::string("Person Example"), o_contact.formatted_name());
+    EXPECT_TRUE(o_contact.o_warnings.empty());
+    EXPECT_EQ(static_cast<std::size_t>(13), o_contact.property_count());
+    EXPECT_EQ(static_cast<std::size_t>(2), o_contact.telephones().size());
+
+    const std::vector<gnome_vcard::vcard::address_o> o_addresses = o_contact.addresses();
+    EXPECT_EQ(static_cast<std::size_t>(1), o_addresses.size());
+    if (!o_addresses.empty()) {
+        const gnome_vcard::vcard::address_o &o_address = o_addresses.front();
+        EXPECT_EQ(std::string("123 Example Street\nExampleville"), o_address.s_street);
+        EXPECT_EQ(std::string("CO"), o_address.s_locality);
+        EXPECT_EQ(std::string("00000"), o_address.s_postal_code);
+        EXPECT_TRUE(o_address.s_region.empty());
+        EXPECT_TRUE(o_address.b_preferred);
+        EXPECT_TRUE(o_address.is_empty() == false);
+        EXPECT_CONTAINS(o_address.formatted(), "Exampleville");
+        EXPECT_TRUE(o_address.formatted().find('\n') != std::string::npos);
+    }
+
+    const std::string s_label = o_contact.first_text("LABEL");
+    EXPECT_CONTAINS(s_label, "123 Example Street");
+    EXPECT_CONTAINS(s_label, "Exampleville, CO  00000");
+    EXPECT_TRUE(s_label.find('\n') != std::string::npos);
+
+    const gnome_vcard::vcard::photo_o o_photo = o_contact.photo();
+    EXPECT_TRUE(o_photo.b_present);
+    EXPECT_FALSE(o_photo.b_embedded);
+    EXPECT_CONTAINS(o_photo.s_uri, "https://example.invalid/photo.png");
+}
+
 void test_multiple_cards(const std::string &s_directory) {
     gnome_vcard::vcard::file_o o_file;
     std::string s_error;
@@ -201,6 +243,30 @@ void test_parse_edge_cases() {
     if (!o_file.o_contacts.empty()) {
         EXPECT_TRUE(o_file.o_contacts.front().photo().b_embedded);
     }
+
+    // A bare "=" ends a quoted-printable value's physical line even when the
+    // continuation has no leading whitespace.  A colon in that continuation
+    // must not be mistaken for a new property.
+    const std::string s_soft_break =
+        "BEGIN:VCARD\nVERSION:3.0\nFN:Test\nN:Test;;;;\n"
+        "NOTE;ENCODING=QUOTED-PRINTABLE:first=0D=0A=\n"
+        "https://example.invalid/x\n"
+        "END:VCARD\n";
+    EXPECT_TRUE(gnome_vcard::vcard::parse_vcards(s_soft_break, "soft.vcf", o_file, s_error));
+    if (!o_file.o_contacts.empty()) {
+        EXPECT_CONTAINS(o_file.o_contacts.front().note(), "https://example.invalid/x");
+        EXPECT_TRUE(o_file.o_contacts.front().o_warnings.empty());
+    }
+
+    // A line that is not quoted-printable keeps a trailing "=" as text; the
+    // next line is still a property.
+    const std::string s_equals_text =
+        "BEGIN:VCARD\nVERSION:3.0\nFN:Test\nNOTE:ends with =\nTEL:123\nEND:VCARD\n";
+    EXPECT_TRUE(gnome_vcard::vcard::parse_vcards(s_equals_text, "equals.vcf", o_file, s_error));
+    if (!o_file.o_contacts.empty()) {
+        EXPECT_EQ(std::string("ends with ="), o_file.o_contacts.front().note());
+        EXPECT_EQ(static_cast<std::size_t>(1), o_file.o_contacts.front().telephones().size());
+    }
 }
 
 }  // namespace
@@ -214,6 +280,7 @@ int main(int i_argument_count, char *o_arguments[]) {
 
     test_simple_vcard(s_directory);
     test_legacy_vcard(s_directory);
+    test_soft_break_card(s_directory);
     test_multiple_cards(s_directory);
     test_incomplete_card(s_directory);
     test_invalid_document(s_directory);

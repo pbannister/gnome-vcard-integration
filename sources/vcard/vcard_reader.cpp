@@ -199,15 +199,34 @@ std::vector<std::string> split_physical_lines(const std::string &s_text) {
     return o_lines;
 }
 
-// Unfold a content line split across physical lines.  A quoted-printable soft
-// break appears as a trailing "=" when the physical lines are joined, so that
-// "=" is dropped as part of the join.
+// Whether a content line declares quoted-printable encoding.  Its value may
+// then use a bare "=" at the end of a physical line as a soft break, and some
+// producers (Outlook among them) write the continuation with no leading space,
+// which is not a valid vCard fold but is common in the wild.
+bool is_quoted_printable_line(const std::string &s_line) {
+    const std::size_t u_colon = find_unquoted(s_line, ':');
+    if (std::string::npos == u_colon) {
+        return false;
+    }
+    return std::string::npos != upper(s_line.substr(0, u_colon)).find("QUOTED-PRINTABLE");
+}
+
+// Unfold a content line split across physical lines.  A standard fold continues
+// a line that begins with a space or a tab.  A quoted-printable soft break is a
+// trailing "=": the next physical line belongs to the same value even when it
+// does not begin with whitespace, so it is joined and the "=" is dropped.
 std::vector<std::string> unfold_lines(const std::vector<std::string> &o_lines) {
     std::vector<std::string> o_unfolded;
     for (const std::string &s_line : o_lines) {
-        if (!s_line.empty() && (' ' == s_line[0] || '\t' == s_line[0]) &&
-            !o_unfolded.empty()) {
-            std::string s_continuation = s_line.substr(1);
+        const bool b_folded = !s_line.empty() &&
+                              (' ' == s_line[0] || '\t' == s_line[0]) &&
+                              !o_unfolded.empty();
+        const bool b_soft_break = !s_line.empty() && !o_unfolded.empty() &&
+                                  !o_unfolded.back().empty() &&
+                                  '=' == o_unfolded.back().back() &&
+                                  is_quoted_printable_line(o_unfolded.back());
+        if (b_folded || b_soft_break) {
+            const std::string s_continuation = b_folded ? s_line.substr(1) : s_line;
             std::string &s_previous = o_unfolded.back();
             if (!s_previous.empty() && '=' == s_previous.back()) {
                 s_previous.pop_back();
@@ -1041,6 +1060,23 @@ std::vector<property_o> contact_o::impps() const {
     return properties_named("IMPP");
 }
 
+bool looks_like_postal_code(const std::string &s_value) {
+    if (4 > s_value.size()) {
+        return false;
+    }
+    bool b_has_digit = false;
+    for (const char c_next : s_value) {
+        if (c_next >= '0' && c_next <= '9') {
+            b_has_digit = true;
+            continue;
+        }
+        if ('-' != c_next && ' ' != c_next) {
+            return false;
+        }
+    }
+    return b_has_digit;
+}
+
 std::vector<address_o> contact_o::addresses() const {
     std::vector<address_o> o_addresses;
     const std::string s_fallback_label = first_text("LABEL");
@@ -1066,7 +1102,17 @@ std::vector<address_o> contact_o::addresses() const {
             o_address.s_locality = o_parts[3];
         }
         if (4 < o_parts.size()) {
-            o_address.s_region = o_parts[4];
+            // A short ADR from some 2.1 producers drops the trailing empty
+            // components and leaves the postal code in the region position.
+            // A five-component address whose fifth part looks like a postal
+            // code is read that way, so "CO;00000" becomes locality CO and
+            // postal code 00000 rather than region "00000".
+            if (5 == o_parts.size() && !o_parts[3].empty() &&
+                looks_like_postal_code(o_parts[4])) {
+                o_address.s_postal_code = o_parts[4];
+            } else {
+                o_address.s_region = o_parts[4];
+            }
         }
         if (5 < o_parts.size()) {
             o_address.s_postal_code = o_parts[5];

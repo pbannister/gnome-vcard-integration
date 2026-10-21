@@ -30,6 +30,16 @@
 
 ## Recently Completed
 
+* [x] interpret a bare quoted-printable soft break (2026-10-21; owner report):
+    * [x] the reader joins a quoted-printable continuation that starts at
+          column 0, so an exported 2.1 card's `ADR` and `LABEL` are complete.
+    * [x] a five-component `ADR` whose fifth part looks like a postal code is
+          read as a postal code, so the short form displays without an extra
+          comma.
+    * [x] added a synthetic fixture and reader and command-line regression
+          tests, and `vcard-inspect` now reports the label beside the address.
+    * [x] no value from the supplied card is committed; the fixture is
+          invented.
 * [x] publish the page set and release `v0.1.0` (2026-10-21; phase 4):
     * [x] added `scripts/release-publish.sh`, `make release-publish`, and
           `tests/81-release-publish.sh`; the publish path builds from the
