@@ -30,3 +30,7 @@ is what makes that checkable.
   over the destination.
 - A publish is re-runnable: reuse the tag the commit already carries, refuse a
   tag on a different commit, skip a redundant push, and re-upload assets.
+- Generate a release tag as `v<date>-<branch>` when the commit carries no tag;
+  `date` is the release date in `YYYY-MM-DD` form and `branch` is the current
+  branch name. An explicit tag overrides the generated one; a checkout not on a
+  branch requires one.
