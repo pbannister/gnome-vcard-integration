@@ -71,7 +71,8 @@ bool run_helper(const std::vector<std::string> &o_arguments, std::string &s_erro
 // theme directory and then never rescans it, so a stale cache hides every newly
 // installed icon; a missing cache tool is not an error.
 void refresh_icon_cache(const std::string &s_theme_directory) {
-    if (!fs::is_directory(s_theme_directory)) {
+    std::error_code o_directory_error;
+    if (!fs::is_directory(s_theme_directory, o_directory_error)) {
         return;
     }
     for (const char *s_program : {"gtk4-update-icon-cache", "gtk-update-icon-cache"}) {
@@ -98,7 +99,7 @@ std::string type_icon_name(const std::string &s_type) {
 bool ensure_directory(const std::string &s_path, std::string &s_error) {
     std::error_code o_error;
     fs::create_directories(s_path, o_error);
-    if (o_error && !fs::is_directory(s_path)) {
+    if (o_error && !fs::is_directory(s_path, o_error)) {
         s_error = "cannot create " + s_path + ": " + o_error.message();
         return false;
     }
@@ -375,13 +376,15 @@ bool handler_integrator_c::install(std::vector<std::string> &o_log, std::string 
     // level even where shared-mime-info already knows the type, because that is
     // the only way `generic-icon` can name this project's icon; a definition the
     // project did not write is backed up first and restored by uninstall.
-    const bool b_existed = fs::exists(o_paths_.s_mime_package);
+    std::error_code o_exists_error;
+    const bool b_existed = fs::exists(o_paths_.s_mime_package, o_exists_error);
     const bool b_ours_before =
         (manifest_value(o_old_entries, "mime_package") == o_paths_.s_mime_package);
     const bool b_old_created = ("1" == manifest_value(o_old_entries, "mime_created"));
 
     std::string s_backup;
-    if (fs::exists(o_paths_.s_mime_backup)) {
+    std::error_code o_backup_error;
+    if (fs::exists(o_paths_.s_mime_backup, o_backup_error)) {
         s_backup = o_paths_.s_mime_backup;
     } else if (b_existed && !b_ours_before) {
         if (!ensure_directory(o_paths_.s_state_directory + "/backup", s_error)) {
