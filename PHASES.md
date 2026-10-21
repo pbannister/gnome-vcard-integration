@@ -12,12 +12,12 @@ registry. The homelab reads it from the generated `site.out/phase.txt`
 shows it next to the activity status (active/planned/deferred/complete),
 which the human declares in the homelab registry.
 
-Current: phase 4 — publish the pages and a release — started
+Current: phase 4 — publish the pages and a release — complete
 
 - Phase 1 — Scaffold the project from the skeleton and adapt the rule corpus — complete
 - Phase 2 — Read and report a vCard: the parser and the command-line report — complete
 - Phase 3 — Draw a contact and integrate the type: the SVG card, the MIME handler, the tools, and the viewer — complete
-- Phase 4 — Publish the pages and a release — started
+- Phase 4 — Publish the pages and a release — complete
 
 States: `not-started` | `started` | `complete`. Keep this file in sync
 with the episodes that advance each phase and with `TODO.md`.

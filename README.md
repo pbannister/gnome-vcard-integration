@@ -27,12 +27,19 @@ and registers itself as the application that opens the vCard types.
 
 Everything the desktop does is also a command line.
 
-**Status: phase 3 — the reader, the renderer, the handler, the tools, and the
-viewer are complete; the page set and a release are still to be published.**
+**Status: phase 4 — complete.** The reader, the renderer, the handler, the
+tools, and the viewer are built and tested; the page set is published at
+<https://labs.bannister.us/projects/gnome-vcard-integration/>, and release
+`v0.1.0` is at
+<https://github.com/pbannister/gnome-vcard-integration/releases/tag/v0.1.0>.
 The parser reads vCard 2.1, 3.0, and 4.0, unfolding long lines, decoding
 quoted-printable and base64 values, and accepting both the 2.1 bare type
 parameters and the later `TYPE=` form. The GTK4 viewer is built and exercised
 here under Xvfb, and is skipped where the GTK4 development files are absent.
+
+- Source: <https://github.com/pbannister/gnome-vcard-integration>
+- Release: <https://github.com/pbannister/gnome-vcard-integration/releases/tag/v0.1.0>
+- Pages: <https://labs.bannister.us/projects/gnome-vcard-integration/>
 
 ## Installing
 
@@ -247,6 +254,10 @@ anywhere, and it does not fetch a photo that is a remote URI.
 - Publishing goes through the homelab project (homelab-publish): the project
   registers once via `pages_source` and does not push to the web server
   itself — `make deploy` is retired.
+- The project is registered in the homelab's `sources/projects.yaml` as
+  `gnome-vcard-integration`, with `pages_source` pointing at this repository's
+  `site.out/`; the pages are live at
+  <https://labs.bannister.us/projects/gnome-vcard-integration/>.
 
 ## Canonical Files
 

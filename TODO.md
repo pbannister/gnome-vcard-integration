@@ -2,10 +2,6 @@
 
 ## Open Questions
 
-* [ ] publish the standard page set and a release (phase 4).
-      — The page set builds and the release scripts exist, but the project is
-      not yet registered with the homelab's `pages_source` and no release
-      tarball has been published.
 * [ ] decode the remaining legacy charset labels, chiefly `WINDOWS-1252` and
       `CP1252`.
       — The reader transcodes `UTF-8`, `US-ASCII`, and `ISO-8859-1`, which covers
@@ -34,6 +30,18 @@
 
 ## Recently Completed
 
+* [x] publish the page set and release `v0.1.0` (2026-10-21; phase 4):
+    * [x] added `scripts/release-publish.sh`, `make release-publish`, and
+          `tests/81-release-publish.sh`; the publish path builds from the
+          released commit, validates the tag, skips a redundant push, and
+          re-uploads the assets.
+    * [x] created `github.com/pbannister/gnome-vcard-integration` and published
+          `v0.1.0` with the tarball, `SHA256SUMS`, and generated release notes.
+    * [x] registered the project in the homelab's `sources/projects.yaml` with
+          a `pages_source` of this repository's `site.out/`, and deployed the
+          standard page set through the homelab publisher.
+    * [x] the pages are live at
+          <https://labs.bannister.us/projects/gnome-vcard-integration/>.
 * [x] project start (2026-10-21; owner instruction):
     * [x] derived the project from `00-project-skeleton/` and kept the shared
           rule corpus, so `scripts/skeleton-diff.sh` reports no rule drift.
@@ -41,7 +49,7 @@
           enabled, the vCard privacy boundary, and that there are no live-state
           tests.
     * [x] wrote features `03-vcard-reader`, `04-contact-renderer`,
-          `05-vcard-handler`, and `06-command-line-tools`, with tasks `02`–`05`
+          `05-vcard-handler`, and `06-command-line-tools`, with tasks `01`–`04`
           claiming their requirement identifiers.
     * [x] implemented the reader (vCard 2.1, 3.0, and 4.0), the SVG contact
           card renderer, the MIME handler, the three command-line tools, and the
