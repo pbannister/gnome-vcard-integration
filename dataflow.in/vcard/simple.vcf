@@ -1,0 +1,19 @@
+BEGIN:VCARD
+VERSION:4.0
+FN:Ada Lovelace
+N:Lovelace;Ada;Augusta;Countess;
+ORG:Analytical Engine Society;Mathematics
+TITLE:Mathematician
+ROLE:Programmer
+TEL;TYPE="voice,work";PREF=1:+44 20 0000 0000
+TEL;TYPE=cell:+44 7700 900000
+EMAIL;TYPE=work;PREF=1:ada@example.invalid
+EMAIL;TYPE=home:ada.lovelace@example.invalid
+ADR;TYPE=work:;;12 Example Street;London;Greater London;SW1A 1AA;United Kingdom
+URL:https://example.invalid/ada
+IMPP;TYPE=matrix:@ada:example.invalid
+NOTE:Wrote the first published algorithm.\nSecond line with <angle> & ampersand.
+BDAY:1815-12-10
+NICKNAME:Ada,The Enchantress
+PHOTO;MEDIATYPE=image/png;ENCODING=b:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=
+END:VCARD

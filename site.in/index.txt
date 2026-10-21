@@ -1,0 +1,53 @@
+<h1>GNOME VCARD Integration</h1>
+
+<p>
+Aim of this project is to make a vCard a first-class file on the GNOME desktop.
+A <code>.vcf</code> is a small text file that carries a contact: a name,
+telephone numbers, email addresses, a postal address, a photograph, and notes.
+The format has three generations in the wild, and the older ones use
+quoted-printable values and bare type parameters, so a stock desktop has no
+useful way to show one.
+</p>
+<p>
+This project reads the card, reports what it contains, draws it as a contact
+card, and registers itself as the application that opens it.
+Everything the desktop does is also available on the command line, and every
+change the tool makes to the desktop can be reversed.
+</p>
+
+<h2>What it does</h2>
+
+<ul>
+  <li><code>vcard-inspect</code> reports the cards, the contact facts, the
+      encoded properties, and any warning.</li>
+  <li><code>vcard-render</code> draws a contact as one standalone SVG card,
+      with the embedded photo and safe links only.</li>
+  <li><code>vcard-integrate handler install</code> makes
+      <code>text/vcard</code> and <code>text/x-vcard</code> open with this
+      project, installs the file-type icon, and records what opened them
+      before.</li>
+  <li><code>vcard-integrate handler uninstall</code> puts the previous handlers
+      back and removes what the install wrote.</li>
+</ul>
+
+<h2>Status</h2>
+
+<p>
+Phases 1 through 3 are complete: the reader, the renderer, the MIME handler, the
+command-line tools, and the GTK4 viewer exist, and the test suite passes.
+Phase 4, publishing the pages and a release, has started.
+</p>
+<p>
+The viewer opens the first contact in a multi-card file, and the oldest legacy
+charset label is not decoded yet; both limitations are recorded in
+<code>TODO.md</code>.
+</p>
+
+<h2>A note on examples</h2>
+
+<p>
+A real vCard belongs to a person: it carries a name, telephone numbers, an
+address, and sometimes a photograph.
+The fixtures the tests use are synthetic and structurally real, and every value
+in them is invented.
+</p>

@@ -1,0 +1,43 @@
+<h1>Dashboard</h1>
+
+<p>
+Live state from the owning host, captured by <code>scripts/site-state-fetch.sh</code>
+(<code>make state</code>) and substituted into this page at build time. The
+values are <code>__KEY__</code> placeholders; a key with no value renders as
+<code>unavailable</code>, so the pages still build on a host where the project
+is not installed. See <code>documents/06-project-pages.md</code>.
+</p>
+
+<h2>Build state</h2>
+
+<table>
+  <tr><th>Key</th><th>Value</th></tr>
+  <tr><td>Fetched</td><td>__FETCHED__</td></tr>
+  <tr><td>Host</td><td>__HOST__</td></tr>
+  <tr><td>Branch</td><td>__BRANCH__</td></tr>
+  <tr><td>Commit</td><td>__COMMIT__</td></tr>
+</table>
+
+<h2>What a contact card carries</h2>
+
+<table>
+  <tr><th>Part</th><th>What it is</th></tr>
+  <tr><td><code>BEGIN:VCARD</code></td><td>the start of one contact</td></tr>
+  <tr><td><code>VERSION</code></td><td>2.1, 3.0, or 4.0</td></tr>
+  <tr><td><code>FN</code> and <code>N</code></td><td>the display name and its structured parts</td></tr>
+  <tr><td><code>TEL</code>, <code>EMAIL</code>, <code>ADR</code>, <code>URL</code></td><td>the ways to reach the person</td></tr>
+  <tr><td><code>PHOTO</code></td><td>an inline image or a reference to one</td></tr>
+  <tr><td><code>NOTE</code></td><td>free text</td></tr>
+  <tr><td><code>END:VCARD</code></td><td>the end of the contact</td></tr>
+</table>
+
+<h2>What the handler writes</h2>
+
+<table>
+  <tr><th>Path under <code>$XDG_DATA_HOME</code></th><th>What it is</th></tr>
+  <tr><td><code>mime/packages/vcard.xml</code></td><td>the definition of the card type and its icon</td></tr>
+  <tr><td><code>applications/vcard-handler.desktop</code></td><td>the handler entry</td></tr>
+  <tr><td><code>icons/hicolor/scalable/apps/vcard-handler.svg</code></td><td>the handler icon</td></tr>
+  <tr><td><code>icons/hicolor/scalable/mimetypes/</code></td><td>the file icon for each type</td></tr>
+  <tr><td><code>gnome-vcard-integration/vcard-handler.manifest</code></td><td>the record an uninstall reads</td></tr>
+</table>

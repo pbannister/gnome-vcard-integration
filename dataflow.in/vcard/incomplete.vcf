@@ -1,0 +1,4 @@
+BEGIN:VCARD
+N:Example;Person;;;
+TEL;HOME:555-0100
+END:VCARD

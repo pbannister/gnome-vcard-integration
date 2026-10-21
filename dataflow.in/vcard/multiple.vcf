@@ -1,0 +1,18 @@
+BEGIN:VCARD
+VERSION:4.0
+FN:Grace Hopper
+N:Hopper;Grace;Brewster;Rear Admiral;
+ORG:United States Navy
+TITLE:Computer Scientist
+EMAIL;TYPE=work:grace@example.invalid
+TEL;TYPE=voice:+1 555 0100
+END:VCARD
+BEGIN:VCARD
+VERSION:4.0
+FN:Katherine Johnson
+N:Johnson;Katherine;;
+ORG:NASA
+TITLE:Mathematician
+EMAIL;TYPE=work:katherine@example.invalid
+TEL;TYPE=voice:+1 555 0101
+END:VCARD
