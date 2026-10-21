@@ -154,7 +154,7 @@ define the type and its definition is not this project's to lose.
 - `make maturity` scores the machine-checkable subset of the prompt-maturity rubric.
 - `make site` builds the published page set, then runs the sanitization gate over `site.out/` (`make check` runs the gate alone).
 - `make release` builds, stages the programs into `dataflow.out/build/bin/`, checks that the version names the current commit, and writes the release assets into `dataflow.out/release/`.
-- `make release-publish` builds from the commit being released, tags it, and creates or updates the GitHub release with the tarball and its checksum; it needs the GitHub CLI. Without `TAG`, the tag is `v<date>-<branch>` (for example `v2026-10-21-master`); a tag already on the commit is reused, and an explicit `TAG` overrides it.
+- `make release-publish` builds from the commit being released, tags it, and creates or updates the GitHub release with the tarball and its checksum; it needs the GitHub CLI. Without `TAG`, the tag is `v<date>-<branch>` (for example `v2026-10-21-master`); a tag already on the commit is reused, and an explicit `TAG` overrides it. A generated tag that already points at another commit is refused, so a second release on the same branch and day needs an explicit `TAG`.
 - `make clean` removes generated output.
 
 The C++ build uses CMake with the highest warning level and treats warnings as
