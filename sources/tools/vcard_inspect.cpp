@@ -135,8 +135,11 @@ void print_report(const gnome_vcard::vcard::file_o &o_file, bool b_properties) {
         const std::vector<std::string> o_name = o_contact.name_components();
         if (!o_name.empty()) {
             std::cout << "  name:";
-            for (const std::string &s_part : o_name) {
-                std::cout << ' ' << s_part << ';';
+            for (std::size_t u_part = 0; u_part < o_name.size(); ++u_part) {
+                if (0 < u_part) {
+                    std::cout << ';';
+                }
+                std::cout << o_name[u_part];
             }
             std::cout << '\n';
         }
