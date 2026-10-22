@@ -30,6 +30,12 @@
 
 ## Recently Completed
 
+* [x] guard the vCard fixtures against real data (2026-10-22; incident):
+    * [x] removed the real card from reachable history, deleted the exposed
+          tag and release, and republished the clean release.
+    * [x] added `tests/04-fixture-privacy.sh`, an allowlist of the reviewed
+          synthetic fixtures; a new file fails the suite.
+    * [x] the incident account is `records/01-privacy-leak-and-purge.md`.
 * [x] generate release tags as `v<date>-<branch>` (2026-10-21; owner instruction):
     * [x] `release-publish.sh` generates `v<date>-<branch>` when the commit has
           no tag, still reuses an existing tag, and still accepts an explicit

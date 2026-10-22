@@ -160,10 +160,11 @@ define the type and its definition is not this project's to lose.
 The C++ build uses CMake with the highest warning level and treats warnings as
 errors.
 
-The tests follow the skeleton's reserved bands: `14` for the context budget,
-`15` for the vCard reader, `40` for the renderer, `60` for the command-line
-tools, `82` for the viewer's Discovered and About content, and `90`–`95` for
-the handler install and uninstall and the viewer.
+The tests follow the skeleton's reserved bands: `04` for the fixture privacy
+guard, `14` for the context budget, `15` for the vCard reader, `40` for the
+renderer, `60` for the command-line tools, `82` for the viewer's Discovered and
+About content, and `90`–`95` for the handler install and uninstall and the
+viewer.
 The C++ unit tests (`tests/*_test.cpp`, `tests/test_harness.h`) are built by
 `sources/CMakeLists.txt` and run by a shell test; `tests/lib/test_helpers.sh`
 carries `build_program` and the fixture paths.
@@ -256,7 +257,7 @@ anywhere, and it does not fetch a photo that is a remote URI.
 ## Project Settings
 
 - Automatic task commits: enabled (see `prompts/02-workflow.md` §7.1).
-- Privacy boundary: a real vCard belongs to a person and carries a name, telephone numbers, an address, an email address, and sometimes a photograph. No real vCard, and no value taken from one, is committed to this repository; the fixtures under `dataflow.in/vcard/` are synthetic and exist so the tests have a card that is structurally real and nobody's.
+- Privacy boundary: a real vCard belongs to a person and carries a name, telephone numbers, an address, an email address, and sometimes a photograph. No real vCard, and no value taken from one, is committed to this repository; the fixtures under `dataflow.in/vcard/` are synthetic and exist so the tests have a card that is structurally real and nobody's. A new fixture must be reviewed as synthetic and added to the allowlist in `tests/04-fixture-privacy.sh`; the test fails on an unreviewed file.
 - Live-state tests: none. Every test runs against fixtures and a throwaway `HOME`, so `make test` touches neither the real desktop nor the network.
 
 ## Project Pages (publishing conventions)
