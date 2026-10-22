@@ -11,6 +11,7 @@
 - `09-viewer-tab-focus.md` — Clear the tab-selection focus in the viewer.
 - `10-release-tag-form.md` — Generate release tags as `v<date>-<branch>`.
 - `11-fixture-privacy-guard.md` — Guard the vCard fixtures against real data.
+- `12-release-title-date.md` — Put the date first in a release title.
 
 - `01` establishes the C++ build, the utility layer, and the parser.
 - `02` draws a card on top of the parser.
@@ -23,3 +24,4 @@
 - `09` clears the automatic title selection when a viewer tab opens.
 - `10` names an invented release tag by date and branch.
 - `11` adds the fixture allowlist and the incident record.
+- `12` leads a release title with its date.

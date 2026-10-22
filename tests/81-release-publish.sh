@@ -152,6 +152,11 @@ RELEASE_VERSION=$(cat "$DIRECTORY_ROOT/dataflow.out/release/VERSION")
     || fail "the release VERSION is $RELEASE_VERSION, not the built $EXPECTED_VERSION"
 [ -x "$DIRECTORY_ROOT/dataflow.out/build/bin/vcard-integrate" ] \
     || fail 'the publish did not stage the current build'
+EXPECTED_TITLE_DATE=$(printf '%s' "$EXPECTED_VERSION" | cut -c1-10)
+EXPECTED_TITLE_DETAIL=$(printf '%s' "$EXPECTED_VERSION" | cut -c12-)
+EXPECTED_TITLE="$EXPECTED_TITLE_DATE — GNOME VCARD Integration ($EXPECTED_TITLE_DETAIL)"
+grep -F -q -- "--title $EXPECTED_TITLE" "$FILE_LOG" \
+    || fail 'the release title does not put the date first'
 
 # --- a second publish reuses the tag and re-uploads --------------------------
 run_publish_default GH_RELEASE_EXISTS=1 > "$DIRECTORY_TEST/republish.log" 2>&1 \

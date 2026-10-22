@@ -30,6 +30,11 @@
 
 ## Recently Completed
 
+* [x] put the date first in a release title (2026-10-22; owner instruction):
+    * [x] the default title is `2026-10-22 — GNOME VCARD Integration
+          (master-c388c1e)`, so the date survives the narrow GitHub list.
+    * [x] `tests/81-release-publish.sh` asserts the date-first title.
+    * [x] existing release titles were updated to the same order.
 * [x] guard the vCard fixtures against real data (2026-10-22; incident):
     * [x] removed the real card from reachable history, deleted the exposed
           tag and release, and republished the clean release.

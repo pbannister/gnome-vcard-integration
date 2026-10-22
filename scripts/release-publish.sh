@@ -74,7 +74,11 @@ if [ -z "${TAG:-}" ]; then
     fi
     TAG="v$(date +%F)-$branch_for_tag"
 fi
-TITLE=${TITLE:-"GNOME VCARD Integration $VERSION"}
+# GitHub's release list is narrow, so the title leads with the date, then the
+# project name; the branch and commit follow and may be truncated.
+RELEASE_DATE=$(printf '%s' "$VERSION" | cut -c1-10)
+RELEASE_DETAIL=$(printf '%s' "$VERSION" | cut -c12-)
+TITLE=${TITLE:-"$RELEASE_DATE — GNOME VCARD Integration ($RELEASE_DETAIL)"}
 FILE_TARBALL=$(find "$DIRECTORY_RELEASE" -maxdepth 1 -name '*.tar.gz' | head -1)
 if [ -z "$FILE_TARBALL" ]; then
     echo "release-publish: release-package.sh produced no tarball" >&2
