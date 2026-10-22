@@ -211,17 +211,14 @@ Human contributors should begin by reading:
 - `prompts/README.md`
 - `documents/README.md`
 
-The prompt corpus is kept in step with the project skeleton: `prompts/`,
-`records/README.md`, `tests/README.md`, and the shared documents are copies of
-the skeleton's files, and a project customises one by appending a
-`## How this project does it` section rather than by editing the shared text.
-Run `sh scripts/skeleton-diff.sh ~/work/gnome-vcard-integration` from the
-skeleton to see any drift; `tests/09-prompt-contract.sh` validates the corpus
-itself.
-The one deliberate difference in a shared rule file is `prompts/01-contract.md`
-section 7, whose canonical-file list names `PHASES.md`; the validator requires
-every tracked root file to be listed there. `scripts/skeleton-diff.sh` reports
-that line as drift, and this project accepts it.
+The prompt corpus is pinned, not copied: `rules.lock` records the
+`00-project-rules` version and a digest per vendored file, and
+`scripts/rules-check.sh` fails when one is edited. Customise by extending — a
+project-specific rule goes in a local prompt file numbered after the shared ones —
+rather than by editing shared text, which the check treats as drift.
+`tests/09-prompt-contract.sh` validates the corpus itself.
+`PHASES.md` needs no exception: it is declared in `prompts/10-project.md`, which
+is how a project adds a root file without touching a shared rule.
 
 ## For the LLM
 
