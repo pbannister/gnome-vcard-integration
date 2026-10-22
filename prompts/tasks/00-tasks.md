@@ -12,6 +12,7 @@
 - `10-release-tag-form.md` — Generate release tags as `v<date>-<branch>`.
 - `11-fixture-privacy-guard.md` — Guard the vCard fixtures against real data.
 - `12-release-title-date.md` — Put the date first in a release title.
+- `13-release-title-rule.md` — Codify the release title convention.
 
 - `01` establishes the C++ build, the utility layer, and the parser.
 - `02` draws a card on top of the parser.
@@ -25,3 +26,4 @@
 - `10` names an invented release tag by date and branch.
 - `11` adds the fixture allowlist and the incident record.
 - `12` leads a release title with its date.
+- `13` makes the title convention a shared rule.

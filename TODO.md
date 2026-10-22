@@ -30,6 +30,12 @@
 
 ## Recently Completed
 
+* [x] codify the release title convention (2026-10-22; owner instruction):
+    * [x] the shared release capability now says a title leads with the most
+          significant information, date first, then the project name and the
+          branch and commit.
+    * [x] the project copy is synced from the skeleton; `skeleton-diff` reports
+          no capability drift.
 * [x] put the date first in a release title (2026-10-22; owner instruction):
     * [x] the default title is `2026-10-22 — GNOME VCARD Integration
           (master-c388c1e)`, so the date survives the narrow GitHub list.
