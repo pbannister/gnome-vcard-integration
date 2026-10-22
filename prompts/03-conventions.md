@@ -160,5 +160,5 @@ A script must complete without a human at the terminal.
 
 ## 8. Output
 
-- The output rules are in `prompts/01-contract.md` section 5; the scope rules are in `prompts/common/02-universal-rules.md`.
+- The output rules are in `prompts/01-contract.md` section 5; the scope rules are in `prompts/common/01-universal-rules.md`.
 - Praise and affirmation filler are output defects: they raise confidence without adding information.

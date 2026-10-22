@@ -11,12 +11,6 @@
 # The standard tool-gated skip message is "SKIP: missing tool: <tool>", so a
 # skip is visible in the run transcript without being a failure.
 
-# REPOSITORY_ROOT resolves through the sourcing script's own path, so a test may
-# call a helper from any working directory.
-REPOSITORY_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-DIRECTORY_BUILD="$REPOSITORY_ROOT/dataflow.out/build"
-DIRECTORY_FIXTURES="$REPOSITORY_ROOT/dataflow.in/vcard"
-
 # skip_test MESSAGE: report a clean skip and exit 0.
 skip_test() {
     echo "SKIP: $1"
@@ -40,9 +34,11 @@ pass_test() {
     exit 0
 }
 
-# build_program: configure and build the C++ reader, renderer, integration, and
-# tools.  A test that needs the tools calls this rather than assuming an earlier
-# test built them, because each test must also pass when it is run on its own.
-build_program() {
-    sh "$REPOSITORY_ROOT/scripts/program-build.sh" >/dev/null
-}
+# A project may extend these helpers. `tests/lib/project_helpers.sh` is
+# project-owned and never vendored, so a project adds its own helpers there
+# instead of forking this file — and a fork is what breaks silently: the next
+# version overwrites it and every test that used the additions fails at once.
+# The file is optional; most projects do not have one.
+if [ -f "$(dirname -- "$0")/lib/project_helpers.sh" ]; then
+    . "$(dirname -- "$0")/lib/project_helpers.sh"
+fi
