@@ -34,20 +34,27 @@ cat > "$DIRECTORY_ROOT/TODO.md" <<'EOF'
 * [x] something.
 EOF
 
-# 1. A scratch project without logs or git still orients and exits zero.
-output_status=$(cd "$DIRECTORY_ROOT" && sh "$SCRIPT_STATUS" "$DIRECTORY_ROOT" </dev/null)
+# 1. A scratch project with no test log reports it and exits one.
+status_status=0
+output_status=$(cd "$DIRECTORY_ROOT" && sh "$SCRIPT_STATUS" "$DIRECTORY_ROOT" </dev/null) \
+    || status_status=$?
+[ 1 -eq "$status_status" ] \
+    || fail "a missing test log did not exit 1 (status $status_status): $output_status"
 printf '%s\n' "$output_status" | grep -qF 'decide the next episode' \
     || fail "the next TODO item is missing: $output_status"
 printf '%s\n' "$output_status" | grep -qF 'none recorded' \
     || fail "an empty log directory was not reported: $output_status"
 
-# 2. A recorded failure is reported with its count.
+# 2. A recorded failure is reported with its count, and a log means exit zero.
 cat > "$DIRECTORY_ROOT/logs/2026-01-02-03-04-05-test-run.log" <<'EOF'
 PASS 00-skeleton.sh
 FAIL 01-site-build.sh
 tests-run: 1 test failed
 EOF
-output_status=$(sh "$SCRIPT_STATUS" "$DIRECTORY_ROOT" </dev/null)
+status_status=0
+output_status=$(sh "$SCRIPT_STATUS" "$DIRECTORY_ROOT" </dev/null) || status_status=$?
+[ 0 -eq "$status_status" ] \
+    || fail "a recorded test log exited $status_status: $output_status"
 printf '%s\n' "$output_status" | grep -qF '1 failure(s)' \
     || fail "the failure count is missing: $output_status"
 printf '%s\n' "$output_status" | grep -qF 'tests-run: 1 test failed' \

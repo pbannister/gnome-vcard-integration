@@ -9,6 +9,8 @@
 # Usage: status.sh [--quiet] [PROJECT_DIR]
 #
 # --quiet omits the git section.
+# Exits 1 when no test log exists under logs/, so a caller can detect a project
+# that has never run its tests.
 set -eu
 
 DIRECTORY_SCRIPT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -70,6 +72,10 @@ if [ false = "$IS_QUIET" ]; then
     else
         echo "== git: not a repository"
     fi
+fi
+
+if [ -z "$file_log" ]; then
+    exit 1
 fi
 
 exit 0
