@@ -30,7 +30,7 @@ Everything the desktop does is also a command line.
 **Status: phase 4 — complete.** The reader, the renderer, the handler, the
 tools, and the viewer are built and tested; the page set is published at
 <https://labs.bannister.us/projects/gnome-vcard-integration/>, and release
-`v0.1.1` (the latest) is at
+`v2026-10-23-master` (the latest) is at
 <https://github.com/pbannister/gnome-vcard-integration/releases/latest>.
 The parser reads vCard 2.1, 3.0, and 4.0, unfolding long lines, decoding
 quoted-printable and base64 values, and accepting both the 2.1 bare type
