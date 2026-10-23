@@ -6,11 +6,25 @@
 # result, and the working-tree state. Read-only, and it never blocks on
 # standard input (prompts/03-conventions.md section 7.1).
 #
-# Usage: status.sh [PROJECT_DIR]
+# Usage: status.sh [--quiet] [PROJECT_DIR]
+#
+# --quiet omits the git section.
 set -eu
 
 DIRECTORY_SCRIPT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-PROJECT_ROOT=$(CDPATH= cd -- "${1:-"$DIRECTORY_SCRIPT/.."}" && pwd)
+IS_QUIET=false
+DIRECTORY_PROJECT=''
+for argument in "$@"; do
+    case "$argument" in
+        --quiet)
+            IS_QUIET=true
+            ;;
+        *)
+            DIRECTORY_PROJECT=$argument
+            ;;
+    esac
+done
+PROJECT_ROOT=$(CDPATH= cd -- "${DIRECTORY_PROJECT:-"$DIRECTORY_SCRIPT/.."}" && pwd)
 
 echo "== project: $PROJECT_ROOT"
 
@@ -41,19 +55,21 @@ else
     echo "== last test run: none recorded"
 fi
 
-if git -C "$PROJECT_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
-    branch_name=$(git -C "$PROJECT_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')
-    echo "== git: branch $branch_name"
-    changes_tree=$(git -C "$PROJECT_ROOT" status --short 2>/dev/null || true)
-    if [ -n "$changes_tree" ]; then
-        echo "== working tree: uncommitted changes"
-        printf '%s\n' "$changes_tree" | sed 's/^/   /'
+if [ false = "$IS_QUIET" ]; then
+    if git -C "$PROJECT_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+        branch_name=$(git -C "$PROJECT_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')
+        echo "== git: branch $branch_name"
+        changes_tree=$(git -C "$PROJECT_ROOT" status --short 2>/dev/null || true)
+        if [ -n "$changes_tree" ]; then
+            echo "== working tree: uncommitted changes"
+            printf '%s\n' "$changes_tree" | sed 's/^/   /'
+        else
+            echo "== working tree: clean"
+        fi
+        git -C "$PROJECT_ROOT" log -1 --oneline 2>/dev/null | sed 's/^/   /' || true
     else
-        echo "== working tree: clean"
+        echo "== git: not a repository"
     fi
-    git -C "$PROJECT_ROOT" log -1 --oneline 2>/dev/null | sed 's/^/   /' || true
-else
-    echo "== git: not a repository"
 fi
 
 exit 0

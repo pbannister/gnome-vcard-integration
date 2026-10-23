@@ -63,9 +63,23 @@ if command -v git >/dev/null 2>&1; then
     output_status=$(sh "$SCRIPT_STATUS" "$DIRECTORY_ROOT" </dev/null)
     printf '%s\n' "$output_status" | grep -qF 'working tree: clean' \
         || fail "a clean tree was not reported: $output_status"
+
+    # 4. --quiet omits the git section and leaves the rest unchanged.
+    printf '%s\n' "$output_status" | grep -q '^== git:' \
+        || fail "the git section is missing from the normal output: $output_status"
+    output_quiet=$(sh "$SCRIPT_STATUS" --quiet "$DIRECTORY_ROOT" </dev/null)
+    if printf '%s\n' "$output_quiet" | grep -q '^== git:'; then
+        fail "--quiet printed the git section: $output_quiet"
+    fi
+    if printf '%s\n' "$output_quiet" | grep -q '^== working tree:'; then
+        fail "--quiet printed the working-tree section: $output_quiet"
+    fi
+    output_expected=$(printf '%s\n' "$output_status" | sed '/^== git:/,$d')
+    [ "$output_quiet" = "$output_expected" ] \
+        || fail "--quiet changed the non-git output: $output_quiet"
 fi
 
-# 4. This repository orients.
+# 5. This repository orients.
 output_status=$(cd "$REPOSITORY_ROOT" && sh "$SCRIPT_STATUS" </dev/null)
 printf '%s\n' "$output_status" | grep -qF '== project:' \
     || fail "this repository did not report its project path: $output_status"
