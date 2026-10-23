@@ -29,6 +29,7 @@ done
 PROJECT_ROOT=$(CDPATH= cd -- "${DIRECTORY_PROJECT:-"$DIRECTORY_SCRIPT/.."}" && pwd)
 
 echo "== project: $PROJECT_ROOT"
+echo
 
 if [ -f "$PROJECT_ROOT/PHASES.md" ]; then
     line_phase=$(grep -m1 '^Current:' "$PROJECT_ROOT/PHASES.md" || true)

@@ -40,6 +40,8 @@ output_status=$(cd "$DIRECTORY_ROOT" && sh "$SCRIPT_STATUS" "$DIRECTORY_ROOT" </
     || status_status=$?
 [ 1 -eq "$status_status" ] \
     || fail "a missing test log did not exit 1 (status $status_status): $output_status"
+printf '%s\n' "$output_status" | sed -n '2p' | grep -q '^$' \
+    || fail "the project line is not followed by a blank line: $output_status"
 printf '%s\n' "$output_status" | grep -qF 'decide the next episode' \
     || fail "the next TODO item is missing: $output_status"
 printf '%s\n' "$output_status" | grep -qF 'none recorded' \
