@@ -63,9 +63,18 @@ if(PkgConfig_FOUND)
     pkg_check_modules(GTK4 IMPORTED_TARGET gtk4)
 endif()
 if(TARGET PkgConfig::GTK4)
+    # The focus/selection clearing is a small GTK helper so the viewer and its
+    # regression test use the same code.
+    add_library(viewer_focus STATIC tools/viewer_focus.cpp)
+    target_include_directories(viewer_focus PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(viewer_focus PUBLIC PkgConfig::GTK4)
+
     add_executable(vcard-viewer tools/vcard_viewer_ui.cpp)
     target_link_libraries(vcard-viewer PRIVATE PkgConfig::GTK4 contact_render vcard_reader
-        viewer_content file_util version_info)
+        viewer_content viewer_focus file_util version_info)
+
+    add_executable(viewer-tabs-test "${CMAKE_CURRENT_SOURCE_DIR}/../tests/viewer_tabs_test.cpp")
+    target_link_libraries(viewer-tabs-test PRIVATE viewer_focus)
 else()
     message(STATUS "GTK4 development files not found: vcard-viewer is not built")
 endif()

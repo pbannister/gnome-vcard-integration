@@ -62,6 +62,18 @@ if ! DISPLAY=":$DISPLAY_NUMBER" xdpyinfo >/dev/null 2>&1; then
     fail_test "$NAME_TEST" 'the private X display did not start'
 fi
 
+# The tab switch must leave no title selected.  The test grabs the focus the way
+# GtkNotebook does and checks that the shared clear helper removes the selection
+# while leaving the label selectable by hand.
+if [ ! -x "$DIRECTORY_BUILD/viewer-tabs-test" ]; then
+    fail_test "$NAME_TEST" 'the build produced no viewer-tabs-test'
+fi
+if ! DISPLAY=":$DISPLAY_NUMBER" GSK_RENDERER=cairo GDK_BACKEND=x11 \
+        "$DIRECTORY_BUILD/viewer-tabs-test" >"$DIRECTORY_TEMPORARY/tabs.log" 2>&1; then
+    sed 's/^/    /' "$DIRECTORY_TEMPORARY/tabs.log" | tail -5 >&2
+    fail_test "$NAME_TEST" 'the tab-selection regression test failed'
+fi
+
 # open_window: start a command on the private display and check that a window
 # with the expected title appears and that the process is still alive.
 # Usage: open_window <expected-title-fragment> <command...>

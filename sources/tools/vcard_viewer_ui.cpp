@@ -7,6 +7,7 @@
 //
 #include "render/contact_render.h"
 #include "tools/viewer_content.h"
+#include "tools/viewer_focus.h"
 #include "vcard/vcard_reader.h"
 
 #include <gtk/gtk.h>
@@ -406,11 +407,12 @@ GtkWidget *build_about_page() {
 }
 
 // GtkNotebook focuses the first focusable child of a page when the page is
-// selected.  The first child is a selectable title label, so it arrives with a
-// selection.  Clear the focus after the switch settles; the values remain
-// selectable, but nothing is selected just because a tab was opened.
+// selected.  The first child is a selectable title label, and a selectable
+// label selects all of its text when it gains focus.  Clear the focus and the
+// selection after the switch settles; the values remain selectable by hand, but
+// nothing is selected just because a tab was opened.
 gboolean clear_window_focus(gpointer o_data) {
-    gtk_window_set_focus(GTK_WINDOW(o_data), nullptr);
+    gnome_vcard::viewer::clear_window_focus_and_selection(GTK_WINDOW(o_data));
     return G_SOURCE_REMOVE;
 }
 
